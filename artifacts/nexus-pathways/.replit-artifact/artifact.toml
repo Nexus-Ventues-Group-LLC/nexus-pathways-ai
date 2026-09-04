@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Nexus Pathways AI"
+description = "A secure, multi-tenant foundation for correctional education agencies, with scoped learner, educator, and administrator portals backed by audited organizational access controls."
+version = "1.0.0"
+id = "artifacts/nexus-pathways"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20270
+
+[services.development]
+run = "pnpm --filter @workspace/nexus-pathways run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nexus-pathways", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/nexus-pathways/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20270"
+BASE_PATH = "/"

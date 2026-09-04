@@ -5,7 +5,9 @@
  * Nexus Pathways AI Phase 1 foundation API
  * OpenAPI spec version: 0.1.0
  */
+import type { Error } from './error';
 
-export interface HealthStatus {
-  status: string;
-}
+/**
+ * Authentication is required
+ */
+export type UnauthorizedResponse = Error;

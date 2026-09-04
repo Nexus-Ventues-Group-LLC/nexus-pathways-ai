@@ -1,0 +1,926 @@
+
+
+===== PAGE 1 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 1
+NEXUS PATHWAYS AI™
+Replit Product Build Plan
+Secure Correctional Education • Accessibility • Workforce • Reentry
+Purpose of this document
+Use this PDF as the governing build specification for Replit Agent. It defines the phased product roadmap, data 
+architecture, security and accessibility requirements, national multi-tenant design, quality gates, and the first 
+implementation prompt. The product should be built incrementally; do not ask Replit to implement the full platform in 
+one pass.
+Prepared as an upload-ready development specification
+September 2026
+
+
+===== PAGE 2 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 2
+1. How to Use This PDF in Replit
+1.
+Create a new Replit project for Nexus Pathways AI.
+2.
+Upload this PDF to the project so Replit Agent can reference the product specification.
+3.
+Tell Agent to read the uploaded build plan before writing code and to work on one phase at a time.
+4.
+Start with Phase 0 and Phase 1 only. Do not approve later phases until the exit gate for the current phase passes.
+5.
+Require Agent to run tests, summarize changes, and update project documentation after every major phase.
+6.
+Keep the application portable: the source code must be able to deploy outside Replit later using containers and 
+standard infrastructure.
+Recommended instruction to Agent
+“Read the attached Nexus Pathways AI Replit Product Build Plan. Treat it as the governing product specification. 
+Implement only the phase I name in my prompt. Do not skip security, tenant isolation, tests, audit logging, 
+accessibility review, or documentation.”
+2. Product Vision
+Nexus Pathways AI is a secure, multi-tenant correctional education platform designed to support county jails, juvenile 
+justice programs, state Departments of Corrections, federal correctional settings, adult education programs, and reentry 
+organizations. The system is designed to support education from intake through release while remaining usable in 
+restrictive institutional technology environments.
+Module
+Primary Purpose
+Pathways Learn™
+Learner-facing education experience
+Pathways Assess™
+Placement, diagnostics, practice assessment, mastery
+Pathways Access™
+Accessibility, disability supports, and applicable special-
+education workflows
+Pathways Tutor AI™
+Restricted, curriculum-bounded educational assistance
+Pathways Educator™
+Instructor, cohort, intervention, and progress workflows
+Pathways Command™
+Facility, agency, state, and executive analytics
+Pathways Career™
+Career exploration, employability, workforce readiness
+Pathways Reentry™
+Pre-release planning and continuity of services
+Pathways Passport™
+Permitted learner achievements and post-release 
+continuity
+Pathways Connect™
+APIs, identity, LMS, assessment, and correctional-system 
+integrations
+Core strategy
+Build one national codebase. Customers should be configured as tenants, not as separate forks of the application. 
+
+
+===== PAGE 3 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 3
+Escambia County Corrections can be the first demonstration tenant, but the architecture must support a single facility 
+or an entire statewide correctional system.
+3. Target System Architecture
+NEXUS PATHWAYS AI
+        |
+        +-- Pathways Learn
+        +-- Pathways Assess
+        +-- Pathways Access
+        +-- Pathways Tutor AI
+        +-- Pathways Educator
+        +-- Pathways Command
+        +-- Pathways Career
+        +-- Pathways Reentry / Passport
+        +-- Pathways Connect
+                |
+        +-------+----------------+
+        |                        |
+   Cloud / Private Cloud     Pathways Edge
+                         Correctional Facility LAN
+Design Principle
+Requirement
+Multi-tenant
+Every operational record must be scoped to an 
+organization/agency/facility context.
+Portable
+No critical feature may depend exclusively on Replit 
+hosting.
+Secure by design
+Authorization, auditing, tenant isolation, and least 
+privilege are built into every module.
+Accessible by design
+Accessibility is part of the base UI and testing process, 
+not a later skin.
+AI optional
+Agencies can disable AI without breaking the core 
+education platform.
+Restricted-network capable
+Architecture must support cloud, private cloud, and 
+local/edge deployments.
+Configurable
+Tenant feature flags control modules, policies, and 
+agency-specific workflows.
+Evidence-based claims
+Never claim certification or compliance status without 
+supporting review/evidence.
+4. Non-Negotiable Product Rules
+
+One codebase must support a small county jail and a statewide correctional system.
+
+Every new feature must respect tenant and facility boundaries at both UI and API levels.
+
+Sensitive disability/special-education records require additional permissions and audit logging.
+
+
+===== PAGE 4 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 4
+
+The learner interface must not provide unrestricted web browsing, messaging, arbitrary uploads, or open internet 
+communication.
+
+The AI tutor must never diagnose disabilities, approve accommodations, create an official IEP without authorized staff 
+involvement, or provide facility-security assistance.
+
+Practice content must not be represented as an official GED or TABE examination unless a valid licensed integration 
+exists.
+
+Accessibility accommodations must be configurable and must not automatically alter official standardized testing 
+rules.
+
+Every major feature must include automated tests and documentation before it is considered complete.
+5. Phased Replit Development Roadmap
+Phase 0 - Product Governance & Documentation
+Goal: Create the permanent rules Replit must follow before feature development begins.
+
+Create /docs with PRODUCT_VISION.md, PRODUCT_REQUIREMENTS.md, SECURITY_REQUIREMENTS.md, 
+ACCESSIBILITY_REQUIREMENTS.md, DATA_CLASSIFICATION.md, USER_ROLES.md, DATABASE_RULES.md, 
+AI_SAFETY_RULES.md, DEPLOYMENT_REQUIREMENTS.md, and CODING_STANDARDS.md.
+
+Define feature flags for ABE, HSE, Special Education, Accessibility, AI Tutor, Career, Reentry, Passport, and Offline 
+Mode.
+
+Define data sensitivity levels and which roles can access each class of data.
+Exit gate
+All governing documents exist, are internally consistent, and Agent confirms that later work will follow them.
+Phase 1 - Foundation, Authentication & Multi-Tenancy
+Goal: Create the secure skeleton of the national platform.
+
+Create the monorepo/application structure, PostgreSQL database, typed ORM, environment configuration, and 
+Docker-compatible setup.
+
+Implement Organization → Agency → Region → Facility → Program → Cohort hierarchy.
+
+Implement secure authentication, role-based access control, granular permissions, session controls, and audit-event 
+framework.
+
+Seed one Escambia County Corrections demo tenant with synthetic data only.
+
+Create simple authenticated Learner, Educator, and Administrator shells.
+Exit gate
+Automated tests prove authentication, tenant isolation, facility isolation, role restrictions, and audit-event generation.
+Phase 2 - National Organizational Model
+Goal: Make the same system usable by counties, states, and federal organizations.
+
+Complete the organizational hierarchy and scoped administrator views.
+
+Allow agency administrators to manage facilities and programs beneath their scope.
+
+Prevent facility users from traversing URLs or APIs into another facility or tenant.
+
+Create configuration management for tenant-specific modules and policy settings.
+Exit gate
+A state-level demo administrator can see multiple facilities, while a facility administrator can see only the assigned 
+facility.
+
+
+===== PAGE 5 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 5
+Phase 3 - Pathways Learn™
+Goal: Build the secure learner experience.
+
+Create learner home page, assigned coursework, progress, learning goals, instructional hours, approved resources, 
+and accessibility toolbar.
+
+Keep navigation simple and suitable for desktop/tablet use in institutional environments.
+
+Block direct messages, social features, unrestricted URLs, arbitrary file uploads, and unauthorized external 
+communication.
+
+Add session timeout and configurable inactivity controls.
+Exit gate
+A learner can log in, complete assigned demo content, and never access educator/admin functions or another learner 
+account.
+Phase 4 - Curriculum Management Engine
+Goal: Create a configurable content system rather than hardcoded lessons.
+
+Implement Course → Subject → Module → Unit → Lesson → Activity → Assessment → Skill structure.
+
+Support ABE 1-6, HSE preparation, literacy, ESL, digital literacy, financial literacy, workforce, and reentry categories.
+
+Create staff-authoring workflows for lessons and versioned content publishing.
+
+Add content status: Draft, Review, Approved, Published, Retired.
+Exit gate
+Authorized staff can create and publish a sample course without code changes; learners only see approved content.
+Phase 5 - Pathways Assess™
+Goal: Build placement, diagnostic, mastery, and practice assessment capability.
+
+Implement placement, diagnostic, lesson quiz, unit assessment, post-assessment, and practice assessment types.
+
+Create structured question metadata: subject, domain, skill, learning objective, difficulty, level, question type, 
+explanation, and remediation lesson.
+
+Add attempt history, scoring, mastery updates, and educator review.
+
+Separate internally created practice assessments from official/licensed exams.
+Exit gate
+Scores are reproducible, mastery calculations are tested, and question access is protected from unauthorized users.
+Phase 6 - Adaptive Learning Engine
+Goal: Turn assessment evidence into individualized instruction.
+
+Calculate skill mastery by learner and subject.
+
+Identify persistent skill gaps and generate prioritized learning recommendations.
+
+Generate an Individual Learning Plan with staff override capability.
+
+Advance or remediate learners based on configurable mastery thresholds.
+
+Retain recommendation history so staff can understand why assignments were made.
+Exit gate
+Given known synthetic assessment results, the engine produces the expected learning plan and recommendations.
+
+
+===== PAGE 6 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 6
+Phase 7 - Pathways Access™
+Goal: Integrate accessibility and applicable disability/special-education workflows.
+
+Create AccessibilityProfile, Accommodation, AccommodationAssignment, IEP, IEPGoal, IEPProgress, IEPService, 
+Evaluation, TransitionPlan, RelatedService, ServiceDeliveryLog, AssistiveTechnology, AccommodationApproval, and 
+AccessibilityAuditLog models.
+
+Support adult accommodation plans separately from IEP workflows.
+
+Implement text-to-speech hooks, keyboard navigation, text scaling, high contrast, spacing controls, 
+captions/transcripts, focus mode, reduced-distraction mode, and step-by-step/simplified instructional modes.
+
+Add special-education coordinator dashboard with due-date reminders and progress monitoring.
+
+Restrict disability/special-education records with dedicated permissions.
+Exit gate
+Accessibility workflows function without exposing diagnosis/documentation to roles that only need to know the 
+approved instructional support.
+Phase 8 - Adaptive Accessibility
+Goal: Make instructional presentation respond to approved supports.
+
+Allow authorized staff to set learner accessibility preferences and accommodations.
+
+Expose learner controls only where policy permits.
+
+Add “Read Aloud,” “Simplify,” “Break Into Steps,” “Define This Word,” “Show an Example,” “Practice With Me,” and 
+“Focus Mode” interfaces.
+
+Ensure standard content remains usable when optional assistive services are unavailable.
+Exit gate
+A learner with an assigned accessibility profile receives the configured presentation supports without changing 
+another learner’s experience.
+Phase 9 - Pathways Tutor AI™
+Goal: Add an optional, closed-domain educational tutor.
+
+Ground AI responses in approved curriculum and learner-authorized academic context.
+
+Allow explanations, hints, examples, practice, simplification, and approved translation assistance.
+
+Block unrestricted web access, external communication, security-sensitive assistance, disability diagnosis, 
+accommodation approval, and unilateral IEP modification.
+
+Create agency-level and tenant-level kill switches for AI.
+
+Log AI interactions according to policy and minimize exposure of sensitive records.
+Exit gate
+Red-team tests show the tutor refuses prohibited requests and still supports approved educational help. Core product 
+works with ENABLE_AI_TUTOR=false.
+Phase 10 - Pathways Educator™
+Goal: Give instructors actionable academic workflows.
+
+Build cohort rosters, assignment management, diagnostics, mastery views, interventions, instructional-hour tracking, 
+approved accommodation views, and progress reporting.
+
+Allow educators to create and revise learning plans within assigned scope.
+
+Create alerts for learners needing intervention or reassessment.
+
+Ensure educators only see special-education information required for their role.
+
+
+===== PAGE 7 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 7
+Exit gate
+An educator can manage a cohort end-to-end without receiving administrative or cross-facility privileges.
+Phase 11 - Pathways Command™
+Goal: Create facility, agency, regional, and statewide analytics.
+
+Provide active learners, program enrollment, instructional hours, skills gains, completion, readiness, credentials, and 
+program outcomes.
+
+Implement drill-down hierarchy: Agency → Region → Facility → Program → Cohort → Learner.
+
+Create administrator filters and export controls.
+
+Design synthetic statewide demo dashboards to prove scale.
+Exit gate
+Metrics reconcile to underlying test data and each administrator sees only authorized organizational scope.
+Phase 12 - Pathways Career™
+Goal: Connect education to workforce preparation.
+
+Create career-interest and skills assessments, career plans, employability modules, digital literacy, financial literacy, 
+resume preparation, interview preparation, and credential tracking.
+
+Map academic skills to career pathways.
+
+Allow agencies to configure available occupational pathways and partners.
+
+Support staff review and learner progress tracking.
+Exit gate
+A learner can move from career assessment → career plan → assigned learning → credential/progress record.
+Phase 13 - Pathways Reentry™
+Goal: Create pre-release readiness planning.
+
+Create configurable reentry domains such as education, employment, identification, housing planning, transportation, 
+financial literacy, digital skills, and community-resource referrals.
+
+Add agency-configurable checklists rather than hardcoded national resources.
+
+Allow case managers to track tasks, milestones, approvals, and release readiness.
+Exit gate
+A case manager can produce a complete synthetic reentry plan without exposing unrelated protected records.
+Phase 14 - Pathways Passport™
+Goal: Preserve permitted achievements after release.
+
+Create a controlled transition from restricted institutional identity to a civilian account where permitted.
+
+Carry forward approved achievements, credentials, resume, career plan, skills, and education goals.
+
+Do not automatically transfer disability, medical, security, or other sensitive correctional information.
+
+Require explicit policy/consent workflows for any protected transfer.
+Exit gate
+The transfer test demonstrates an allow-list model: only approved fields are copied to the civilian profile.
+
+
+===== PAGE 8 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 8
+Phase 15 - Government-Grade Reporting
+Goal: Create auditable operational and outcome reports.
+
+Generate individual progress, learning plan, pre/post assessment, readiness, attendance, instructional hours, 
+completion, credential, cohort, facility, accessibility-support, IEP-progress where applicable, career, and reentry 
+reports.
+
+Export to PDF and CSV first; add XLSX and API/JSON as the platform matures.
+
+Protect exports with permission checks and audit events.
+Exit gate
+Generated reports match source data and export attempts by unauthorized roles are blocked and logged.
+Phase 16 - Pathways Connect™
+Goal: Create the integration layer needed for national adoption.
+
+Design versioned REST APIs and webhook architecture.
+
+Prepare integration adapters for SAML/OIDC SSO, SCIM, CSV, secure file transfer, SCORM, xAPI, and LTI where 
+appropriate.
+
+Keep vendor-specific connectors separate from the core domain model.
+
+Document integration contracts and authentication methods.
+Exit gate
+A documented sandbox API can exchange non-sensitive synthetic learner/course data without bypassing 
+authorization rules.
+Phase 17 - Cloud, Private & Edge Deployment
+Goal: Make restrictive correctional deployments realistic.
+
+Package application services for container deployment.
+
+Support Pathways Cloud, dedicated/private environment, and Pathways Edge on a facility LAN.
+
+Design local authentication/content/database operation for approved no-public-internet deployments.
+
+Create controlled content/software update workflow, backup process, and recovery procedure.
+Exit gate
+A test environment operates through the defined local-network mode without learner public internet access.
+Phase 18 - Security Hardening
+Goal: Stop feature work and perform a dedicated security pass.
+
+Test authentication, MFA architecture, session controls, password reset, rate limits, authorization, IDOR, cross-tenant 
+access, XSS, CSRF, injection, file handling, secrets, exports, APIs, and backups.
+
+Test every high-privilege role and sensitive record route.
+
+Add automated security regression tests for issues discovered.
+
+Document unresolved risks instead of hiding them.
+Exit gate
+No known critical/high authorization or tenant-isolation defect remains open for the demo release.
+Phase 19 - Accessibility QA
+Goal: Verify accessibility rather than merely claiming it.
+
+
+===== PAGE 9 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 9
+
+Test keyboard-only navigation, focus order, screen-reader labels, headings, forms, errors, color contrast, text resizing, 
+tables, dialogs, captions, and time-limit behavior.
+
+Create a remediation log and repeat tests after fixes.
+
+Prepare the product for future formal accessibility conformance review.
+Exit gate
+The internal accessibility checklist passes for all critical learner and staff workflows, with known limitations 
+documented.
+Phase 20 - Procurement Demonstration Tenants
+Goal: Create realistic sales/demo environments.
+
+Build Escambia County Corrections demo with synthetic learners and several months of synthetic progress.
+
+Build a statewide demo tenant with multiple regions/facilities and aggregate synthetic data.
+
+Create demo scripts for learner, educator, special-education/accessibility coordinator, facility administrator, and state 
+administrator.
+
+Ensure every demo uses fictional data and clearly indicates demo status.
+Exit gate
+A complete procurement demo can move through student → educator → accessibility coordinator → facility admin → 
+statewide executive workflows without manual database edits.
+6. Recommended Sprint Sequence
+Sprint
+Primary Build
+Do Not Advance Until
+01
+Architecture & governing docs
+Product structure fixed
+02
+Database & tenancy
+Isolation tests pass
+03
+Authentication & RBAC
+Permission tests pass
+04
+Learner UI
+Core learner workflow works
+05
+Curriculum engine
+Content is configurable
+06
+Assessment engine
+Scoring verified
+07
+Adaptive learning
+Recommendations verified
+08
+Pathways Access
+Accessibility/special-ed workflows 
+work
+09
+Educator dashboard
+Instructor workflow works
+10
+Command dashboard
+Facility/agency analytics work
+11
+AI Tutor
+Guardrails tested
+
+
+===== PAGE 10 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 10
+12
+Career
+Career plan works
+13
+Reentry
+Reentry plan works
+14
+Passport
+Controlled transition works
+15
+Reporting
+Exports reconcile to data
+16
+Integrations
+API framework works
+17
+Edge deployment
+Restricted-network test passes
+18
+Security
+Security review passes
+19
+Accessibility QA
+Accessibility checklist passes
+20
+Escambia + statewide demo
+Procurement demo ready
+7. Initial Core Data Model
+Organization
+  -> Agency
+      -> Region
+          -> Facility
+              -> Program
+                  -> Cohort
+                      -> Learner
+Core domain entities:
+User, Role, Permission, UserRole, Educator, Enrollment, Course, Subject,
+Module, Unit, Lesson, Activity, Skill, Assessment, Question, AssessmentAttempt,
+Mastery, LearningPlan, Assignment, InstructionalSession, CareerPlan,
+ReentryPlan, Credential, Report, AuditLog.
+Accessibility/special-education entities:
+AccessibilityProfile, Accommodation, AccommodationAssignment, IEP, IEPGoal,
+IEPProgress, IEPService, IEPMeeting, Evaluation, TransitionPlan, RelatedService,
+ServiceDeliveryLog, AssistiveTechnology, AccommodationApproval,
+AccessibilityAuditLog.
+8. Initial Roles & Permission Model
+ROLES
+SUPER_ADMIN
+AGENCY_ADMIN
+REGIONAL_ADMIN
+FACILITY_ADMIN
+EDUCATION_DIRECTOR
+SPECIAL_ED_ADMIN
+EDUCATOR
+CASE_MANAGER
+REENTRY_SPECIALIST
+AUDITOR
+LEARNER
+SAMPLE PERMISSIONS
+VIEW_LEARNERS / EDIT_LEARNERS
+VIEW_ACADEMIC_RECORDS / EDIT_ACADEMIC_RECORDS
+VIEW_IEP / EDIT_IEP
+VIEW_DISABILITY_RECORDS
+
+
+===== PAGE 11 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 11
+MANAGE_CURRICULUM
+MANAGE_ASSESSMENTS
+VIEW_SECURITY_LOGS
+EXPORT_REPORTS
+MANAGE_TENANT_CONFIGURATION
+Access-control rule
+Role labels are not enough. API endpoints and database queries must enforce scoped permissions. A user must never 
+gain access to another tenant or facility by changing a URL, identifier, API request, or client-side state.
+9. Security, Privacy & Accessibility Baseline
+Area
+Minimum Build Expectation
+Authentication
+Secure password hashing, session expiration, account 
+lockout/rate limiting, MFA architecture for privileged 
+roles.
+Authorization
+Central RBAC/permissions, organization/facility scope 
+enforcement, server-side checks on every protected 
+action.
+Audit
+Log login/security events, protected record views, edits, 
+permission changes, reports, exports, and sensitive 
+special-ed/accessibility access.
+Data
+Classify sensitive data, minimize collection, encrypt 
+transport, use secure secrets, define 
+retention/backup/recovery.
+Learner restrictions
+No open browser, direct messaging, arbitrary uploads, or 
+unapproved external communication.
+Accessibility
+Build toward WCAG 2.2 AA patterns; test keyboard, 
+focus, screen-reader semantics, scaling, contrast, 
+captions, and forms.
+Disability records
+Expose approved instructional accommodations 
+separately from diagnosis/supporting documentation 
+whenever possible.
+AI
+Closed-domain, optional, tenant-controlled; no diagnosis, 
+no official accommodation approval, no security-sensitive 
+assistance.
+10. Definition of the First Sellable Demonstration
+Do not wait for every national module to be complete before demonstrating the product. The first strong procurement 
+demo should prove the platform architecture and the core education workflow.
+
+
+===== PAGE 12 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 12
+
+Escambia County demo tenant with fictional data.
+
+Learner login and restricted learner dashboard.
+
+Educator login with cohort, assignments, assessments, mastery, and learning plans.
+
+Accessibility profile and approved supports for several synthetic learners.
+
+Administrator dashboard with facility-level metrics.
+
+ABE/HSE sample curriculum with enough content to show end-to-end workflow.
+
+Placement/diagnostic demo that produces a learning recommendation.
+
+PDF/CSV progress report.
+
+Audit log and role/tenant isolation tests.
+
+AI Tutor may be demoed only after guardrails are working; it is not required for the earliest core demo.
+
+
+===== PAGE 13 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 13
+11. Master Replit Starter Prompt - Phase 1 Only
+Paste the following into Replit Agent after uploading this PDF. This prompt intentionally limits Agent to the 
+architecture/foundation stage.
+PROJECT:
+Nexus Pathways AI
+MISSION:
+Build a secure, multi-tenant correctional education, accessibility/special-education, workforce development, 
+and reentry software platform for U.S. correctional agencies.
+IMPORTANT:
+Read the uploaded Nexus Pathways AI Replit Product Build Plan and treat it as the governing specification.
+DO NOT attempt to build the complete application during this task.
+THIS TASK IS ARCHITECTURE AND FOUNDATION ONLY.
+The application must eventually support:
+- county jails
+- juvenile justice facilities
+- state Departments of Corrections
+- federal correctional facilities
+- adult education programs
+- reentry organizations
+The same codebase must support one facility or an entire state correctional agency.
+Create a modular, portable architecture.
+Recommended stack:
+- Frontend: Next.js, React, TypeScript, Tailwind CSS
+- Backend: TypeScript
+- Database: PostgreSQL
+- ORM: Prisma or equivalent typed ORM
+- Deployment: Docker-compatible
+The architecture must remain portable and must not depend exclusively on Replit-specific hosting 
+capabilities.
+Create application/module boundaries for:
+- Pathways Learn
+- Pathways Educator
+- Pathways Command
+- Pathways Access
+- Pathways Assess
+- Pathways Career
+- Pathways Reentry
+- Pathways Tutor AI
+- Pathways Connect
+CREATE THE MULTI-TENANT DATA MODEL:
+Organization
+Agency
+Region
+Facility
+Program
+Cohort
+User
+Role
+Permission
+UserRole
+Learner
+Educator
+Enrollment
+Course
+Module
+Lesson
+Skill
+Assessment
+Question
+AssessmentAttempt
+LearningPlan
+Mastery
+AccessibilityProfile
+Accommodation
+IEP
+IEPGoal
+TransitionPlan
+CareerPlan
+
+
+===== PAGE 14 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 14
+ReentryPlan
+Credential
+InstructionalSession
+Report
+AuditLog
+BUILD ROLE-BASED ACCESS CONTROL.
+INITIAL ROLES:
+SUPER_ADMIN
+AGENCY_ADMIN
+REGIONAL_ADMIN
+FACILITY_ADMIN
+EDUCATION_DIRECTOR
+SPECIAL_ED_ADMIN
+EDUCATOR
+CASE_MANAGER
+REENTRY_SPECIALIST
+AUDITOR
+LEARNER
+Every data record must belong to the correct tenant and organizational scope.
+Prevent cross-tenant and cross-facility access at both application and API levels.
+Create a centralized permission system.
+Implement secure authentication and audit-logging architecture.
+Create configuration-based feature flags:
+ENABLE_ABE
+ENABLE_HSE
+ENABLE_SPECIAL_ED
+ENABLE_ACCESSIBILITY
+ENABLE_AI_TUTOR
+ENABLE_CAREER
+ENABLE_REENTRY
+ENABLE_PASSPORT
+ENABLE_OFFLINE_MODE
+CREATE DOCUMENTATION:
+/docs/PRODUCT_VISION.md
+/docs/SYSTEM_ARCHITECTURE.md
+/docs/DATABASE_SCHEMA.md
+/docs/SECURITY_ARCHITECTURE.md
+/docs/RBAC.md
+/docs/DATA_CLASSIFICATION.md
+/docs/ACCESSIBILITY_REQUIREMENTS.md
+/docs/AI_SAFETY_RULES.md
+/docs/DEPLOYMENT_ARCHITECTURE.md
+Build a simple authenticated shell showing:
+- Learner Portal
+- Educator Portal
+- Administrator Portal
+Do not build curriculum, AI tutor, assessments, career planning, or reentry features yet.
+SEED DATA:
+Create one DEMO tenant named Escambia County Corrections.
+Create 1 agency, 1 facility, 1 administrator, 2 educators, and 10 synthetic learners.
+No actual inmate, medical, disability, or protected data may be included.
+TESTS:
+Create and run tests verifying:
+1. Authentication works.
+2. Tenant isolation works.
+3. Facility isolation works.
+4. Role permissions work.
+5. Learner cannot access educator routes.
+6. Educator cannot access system-administration routes.
+7. Audit events are generated.
+Before finishing:
+- Run the test suite.
+- Fix failures.
+- Update documentation.
+- Produce a build summary listing files created, database tables, routes, tests, known limitations, and the 
+recommended next development step.
+DO NOT add functionality outside this scope.
+
+
+===== PAGE 15 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 15
+12. Permanent Replit Project Instruction
+NEXUS PATHWAYS DEVELOPMENT RULE
+Never implement a new major feature without:
+1. Checking tenant isolation.
+2. Checking role-based authorization.
+3. Adding audit events where applicable.
+4. Adding automated tests.
+5. Updating documentation.
+6. Checking accessibility implications.
+7. Checking offline/restricted-network implications.
+8. Checking whether sensitive data is involved.
+Never claim the product is:
+- CJIS compliant
+- FERPA compliant
+- HIPAA compliant
+- SOC 2 certified
+- FedRAMP authorized
+- Section 508 compliant
+- ADA compliant
+- IDEA compliant
+unless authorized human review and supporting evidence establish that claim.
+The application may instead state that it is designed to support applicable requirements.
+13. Replit Agent Working Pattern for Every Later Phase
+7.
+Tell Agent the exact phase number and title to implement.
+8.
+Tell Agent to read this build plan and relevant /docs files first.
+9.
+Tell Agent not to add unrelated features or redesign working modules.
+10. Require database migration review before applying destructive schema changes.
+11. Require automated tests for permissions, tenant/facility scope, and the new feature.
+12. Require an accessibility check for any new learner or staff interface.
+13. Require audit events for protected data reads/writes and administrative actions.
+14. Run tests and fix failures before declaring the phase complete.
+15. Update documentation and produce a concise build summary and known-limitations list.
+14. Product Quality Gate Before Government Demonstrations
+Category
+Ready When
+Tenant isolation
+Cross-tenant/cross-facility authorization tests pass.
+Learner security
+Learners cannot access staff routes, messaging, 
+unrestricted web, or unapproved files.
+Sensitive records
+Disability/special-ed data is permission-scoped and 
+audited.
+Assessments
+Scores and mastery calculations are reproducible and 
+test-covered.
+Reporting
+Demo reports reconcile to source records.
+Accessibility
+Core workflows pass internal 
+keyboard/screen-reader/contrast/scaling checks.
+
+
+===== PAGE 16 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 16
+AI
+Prohibited AI request tests pass and AI can be fully 
+disabled.
+Audit
+Critical views/edits/exports/admin changes appear in 
+logs.
+Deployment
+Development build is containerized/portable and 
+documented.
+Demo data
+All demonstrations use synthetic/fictitious learners and 
+facilities are clearly marked Demo unless representing a 
+named target tenant configuration.
+15. Scale Path After the First Demo
+Stage
+Primary Objective
+1. County pilot
+Win a county correctional/education customer or 
+approved pilot; validate usability and procurement 
+requirements.
+2. Florida expansion
+Reuse the platform for additional county corrections and 
+state-level conversations.
+3. State enterprise
+Prove multi-facility analytics, integrations, accessibility, 
+security, and deployment flexibility.
+4. National county/state
+Build repeatable procurement packages, implementation 
+playbooks, and integrations.
+5. Federal/subcontract
+Pursue federal opportunity readiness, prime partnerships, 
+security requirements, and federal accessibility/cloud 
+strategy as justified.
+16. Immediate Action Checklist
+
+Create the Nexus Pathways AI Replit project.
+
+Upload this PDF.
+
+Paste the Master Replit Starter Prompt from Section 11.
+
+Allow Agent to complete Phase 1 only.
+
+Review the generated database schema, roles, routes, tests, and /docs files.
+
+Do not proceed if tenant/facility isolation tests fail.
+
+Once Phase 1 is clean, instruct Agent to implement Phase 2 using this PDF as the governing plan.
+
+Continue one phase at a time, retaining test evidence and build summaries for future security/procurement 
+documentation.
+Bottom line
+The fastest way to create a credible national correctional software product is not to ask AI to build everything at 
+once. Use Replit as an engineering accelerator, but make the product architecture disciplined, portable, secure, 
+
+
+===== PAGE 17 =====
+
+NEXUS PATHWAYS AI™  |  REPLIT PRODUCT BUILD PLAN
+Confidential working plan  |  Page 17
+accessible, and multi-tenant from the first commit. Build a tested foundation first; then layer education, accessibility, 
+AI, workforce, reentry, reporting, integration, and edge deployment on top of it.
+Implementation note: This document is a product-development plan, not a legal compliance certification. Government, 
+education, disability, privacy, security, and procurement requirements should be reviewed for each target agency and 
+deployment before making compliance claims or entering production.
