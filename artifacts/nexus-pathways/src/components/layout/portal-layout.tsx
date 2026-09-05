@@ -65,8 +65,8 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
   const learnerLinks = [
     { title: 'My Pathway', url: '/learner', icon: LayoutDashboard },
-    { title: 'Assessments', url: '/learner/assessments', icon: Award },
     { title: 'Resources', url: '/learner/resources', icon: BookMarked },
+    { title: 'Accessibility', url: '/learner/accessibility', icon: Settings },
   ];
 
   const links = user.role === 'administrator' ? adminLinks 

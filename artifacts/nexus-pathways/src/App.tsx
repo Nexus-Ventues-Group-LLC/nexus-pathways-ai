@@ -1,15 +1,18 @@
-import { type ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { ClerkProvider } from '@clerk/clerk-react';
+import { ClerkProvider, useAuth } from '@clerk/clerk-react';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 import LandingPage from '@/pages/landing';
 import SignInPage from '@/pages/auth/sign-in';
 import SignUpPage from '@/pages/auth/sign-up';
 import LearnerPortal from '@/pages/learner-portal';
+import LearnerResources from '@/pages/learner/resources';
+import LearnerAccessibility from '@/pages/learner/accessibility';
+import LearnerResourceDetail from '@/pages/learner/resource-detail';
 import EducatorPortal from '@/pages/educator-portal';
 import AdminPortal from '@/pages/administrator/overview';
 import AdminFacilities from '@/pages/administrator/facilities';
@@ -21,6 +24,7 @@ import NotFound from '@/pages/not-found';
 
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { PortalLayout } from '@/components/layout/portal-layout';
+import { LearnerBootstrap } from '@/components/learner/learner-bootstrap';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,10 +49,15 @@ function Router() {
         <Route path="/learner" nest>
           <ProtectedRoute allowedRoles={['learner']}>
             <PortalLayout>
-              <Switch>
-                <Route path="/" component={LearnerPortal} />
-                <Route component={NotFound} />
-              </Switch>
+              <LearnerBootstrap>
+                <Switch>
+                  <Route path="/" component={LearnerPortal} />
+                  <Route path="/resources" component={LearnerResources} />
+                  <Route path="/resources/:slug" component={LearnerResourceDetail} />
+                  <Route path="/accessibility" component={LearnerAccessibility} />
+                  <Route component={NotFound} />
+                </Switch>
+              </LearnerBootstrap>
             </PortalLayout>
           </ProtectedRoute>
         </Route>
@@ -103,14 +112,35 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
+function AuthScopedCache({ children }: { children: ReactNode }) {
+  const { isLoaded, userId } = useAuth();
+  const scopedUserId = userId ?? null;
+  const queryClient = useQueryClient();
+  const previousUserId = useRef<string | null>(scopedUserId);
+  const [readyUserId, setReadyUserId] = useState<string | null>(scopedUserId);
+
+  useEffect(() => {
+    if (!isLoaded || previousUserId.current === scopedUserId) return;
+    previousUserId.current = scopedUserId;
+    void queryClient.cancelQueries();
+    queryClient.clear();
+    setReadyUserId(scopedUserId);
+  }, [isLoaded, queryClient, scopedUserId]);
+
+  if (!isLoaded || readyUserId !== scopedUserId) return null;
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <ClerkProvider publishableKey={clerkPubKey}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-            <Router />
-          </WouterRouter>
+          <AuthScopedCache>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+              <Router />
+            </WouterRouter>
+          </AuthScopedCache>
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>

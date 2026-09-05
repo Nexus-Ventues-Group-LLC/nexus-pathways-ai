@@ -16,6 +16,8 @@ tags:
     description: Scoped organization administration
   - name: audit
     description: Security audit events
+  - name: learner
+    description: Learner-owned learning experience
 paths:
   /healthz:
     get:
@@ -274,6 +276,98 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
+  /learner/home:
+    get:
+      operationId: getLearnerHome
+      tags: [learner]
+      summary: Get the authenticated learner's assigned learning experience
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Learner home
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearnerHome"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /learner/coursework/{courseworkId}/complete:
+    post:
+      operationId: completeLearnerCoursework
+      tags: [learner]
+      summary: Complete an assigned demo coursework item
+      security:
+        - clerkSession: []
+      parameters:
+        - $ref: "#/components/parameters/CourseworkId"
+      responses:
+        "200":
+          description: Completed coursework
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearnerCoursework"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /learner/goals:
+    patch:
+      operationId: updateLearnerGoals
+      tags: [learner]
+      summary: Update the authenticated learner's learning goals
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LearnerGoalsUpdate" }
+      responses:
+        "200":
+          description: Learning goals
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LearnerGoals" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /learner/presentation-preferences:
+    patch:
+      operationId: updateLearnerPresentationPreferences
+      tags: [learner]
+      summary: Update allowed learner presentation preferences
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PresentationPreferencesUpdate" }
+      responses:
+        "200":
+          description: Presentation preferences
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PresentationPreferences" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /learner/activity:
+    post:
+      operationId: recordLearnerActivity
+      tags: [learner]
+      summary: Record learner activity and return inactivity policy
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Learner session policy
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LearnerActivity" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
 components:
   securitySchemes:
     clerkSession:
@@ -314,6 +408,11 @@ components:
       schema: { type: string }
     ProgramId:
       name: programId
+      in: path
+      required: true
+      schema: { type: string }
+    CourseworkId:
+      name: courseworkId
       in: path
       required: true
       schema: { type: string }
@@ -573,4 +672,76 @@ components:
             inactivityTimeoutMinutes: { type: number, multipleOf: 1, minimum: 5, maximum: 240 }
           required: [sessionTimeoutMinutes, inactivityTimeoutMinutes]
       required: [modules, policies]
+    LearnerCoursework:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        instructionalHours: { type: number, minimum: 0 }
+        status: { type: string, enum: [assigned, completed] }
+        completedAt: { type: ["string", "null"], format: date-time }
+      required: [id, title, description, instructionalHours, status, completedAt]
+    LearnerResource:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        content: { type: string }
+        route: { type: string, pattern: "^/learner/resources/[a-z0-9-]+$" }
+      required: [id, title, summary, content, route]
+    LearnerGoals:
+      type: object
+      properties:
+        goals:
+          type: array
+          maxItems: 5
+          items: { type: string, minLength: 1, maxLength: 280 }
+      required: [goals]
+    LearnerGoalsUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        goals:
+          type: array
+          maxItems: 5
+          items: { type: string, minLength: 1, maxLength: 280 }
+      required: [goals]
+    PresentationPreferences:
+      type: object
+      properties:
+        textSize: { type: string, enum: [standard, large, extra-large] }
+        highContrast: { type: boolean }
+        reduceMotion: { type: boolean }
+      required: [textSize, highContrast, reduceMotion]
+    PresentationPreferencesUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        textSize: { type: string, enum: [standard, large, extra-large] }
+        highContrast: { type: boolean }
+        reduceMotion: { type: boolean }
+      required: [textSize, highContrast, reduceMotion]
+    LearnerActivity:
+      type: object
+      properties:
+        lastActiveAt: { type: string, format: date-time }
+        sessionTimeoutMinutes: { type: number }
+        inactivityTimeoutMinutes: { type: number }
+      required: [lastActiveAt, sessionTimeoutMinutes, inactivityTimeoutMinutes]
+    LearnerHome:
+      type: object
+      properties:
+        coursework:
+          type: array
+          items: { $ref: "#/components/schemas/LearnerCoursework" }
+        goals: { $ref: "#/components/schemas/LearnerGoals" }
+        presentationPreferences: { $ref: "#/components/schemas/PresentationPreferences" }
+        resources:
+          type: array
+          items: { $ref: "#/components/schemas/LearnerResource" }
+        instructionalHoursCompleted: { type: number, minimum: 0 }
+        activity: { $ref: "#/components/schemas/LearnerActivity" }
+      required: [coursework, goals, presentationPreferences, resources, instructionalHoursCompleted, activity]
 

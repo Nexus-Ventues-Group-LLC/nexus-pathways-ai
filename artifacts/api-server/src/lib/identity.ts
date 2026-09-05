@@ -9,18 +9,36 @@ export type PortalContext = {
   userId: string; displayName: string; email: string | null; role: string; permissions: string[];
   scope: { organization: Ref; agency: Ref | null; region: Ref | null; facility: Ref | null; program: Ref | null; cohort: Ref | null; level: ScopeLevel };
 };
+export type PortalSession = {
+  id: string;
+  createdAt: Date;
+  revokedAt: Date | null;
+};
 type Ref = { id: string; name: string };
 export type ScopeLevel = "organization" | "agency" | "region" | "facility" | "program" | "cohort";
 
 export async function provisionIdentity(input: { clerkUserId: string; displayName: string; email: string | null; sessionId: string | null }) {
   let [user] = await db.select().from(usersTable).where(eq(usersTable.clerkUserId, input.clerkUserId)).limit(1);
   if (!user) [user] = await db.insert(usersTable).values({ clerkUserId: input.clerkUserId, displayName: input.displayName, email: input.email }).returning();
+  let applicationSession: PortalSession | null = null;
   if (input.sessionId) {
-    const [session] = await db.select().from(applicationSessionsTable).where(eq(applicationSessionsTable.clerkSessionId, input.sessionId)).limit(1);
-    if (session?.revokedAt) return { user, revoked: true };
-    if (!session) await db.insert(applicationSessionsTable).values({ userId: user.id, clerkSessionId: input.sessionId });
+    [applicationSession] = await db.select({
+      id: applicationSessionsTable.id,
+      createdAt: applicationSessionsTable.createdAt,
+      revokedAt: applicationSessionsTable.revokedAt,
+    }).from(applicationSessionsTable).where(eq(applicationSessionsTable.clerkSessionId, input.sessionId)).limit(1);
+    if (applicationSession?.revokedAt) return { user, revoked: true, session: applicationSession };
+    if (!applicationSession) {
+      [applicationSession] = await db.insert(applicationSessionsTable)
+        .values({ userId: user.id, clerkSessionId: input.sessionId })
+        .returning({
+          id: applicationSessionsTable.id,
+          createdAt: applicationSessionsTable.createdAt,
+          revokedAt: applicationSessionsTable.revokedAt,
+        });
+    }
   }
-  return { user, revoked: false };
+  return { user, revoked: false, session: applicationSession };
 }
 
 export async function getPortalContext(userId: string): Promise<PortalContext | null> {

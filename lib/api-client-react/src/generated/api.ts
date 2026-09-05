@@ -30,9 +30,16 @@ import type {
   FacilityUpdate,
   ForbiddenResponse,
   HealthStatus,
+  LearnerActivity,
+  LearnerCoursework,
+  LearnerGoals,
+  LearnerGoalsUpdate,
+  LearnerHome,
   ListAuditEventsParams,
   NotFoundResponse,
   OrganizationHierarchy,
+  PresentationPreferences,
+  PresentationPreferencesUpdate,
   Program,
   ProgramInput,
   ProgramUpdate,
@@ -971,4 +978,365 @@ export function useListAuditEvents<TData = Awaited<ReturnType<typeof listAuditEv
 
 
 
+
+export const getGetLearnerHomeUrl = () => {
+
+
+
+
+  return `/api/learner/home`
+}
+
+/**
+ * @summary Get the authenticated learner's assigned learning experience
+ */
+export const getLearnerHome = async ( options?: Parameters<typeof customFetch>[1]): Promise<LearnerHome> => {
+
+  return customFetch<LearnerHome>(getGetLearnerHomeUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLearnerHomeQueryKey = () => {
+    return [
+    `/api/learner/home`
+    ] as const;
+    }
+
+
+export const getGetLearnerHomeQueryOptions = <TData = Awaited<ReturnType<typeof getLearnerHome>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearnerHome>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLearnerHomeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLearnerHome>>> = ({ signal }) => getLearnerHome({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLearnerHome>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLearnerHomeQueryResult = NonNullable<Awaited<ReturnType<typeof getLearnerHome>>>
+export type GetLearnerHomeQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+
+
+/**
+ * @summary Get the authenticated learner's assigned learning experience
+ */
+
+export function useGetLearnerHome<TData = Awaited<ReturnType<typeof getLearnerHome>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearnerHome>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLearnerHomeQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCompleteLearnerCourseworkUrl = (courseworkId: string,) => {
+
+
+
+
+  return `/api/learner/coursework/${courseworkId}/complete`
+}
+
+/**
+ * @summary Complete an assigned demo coursework item
+ */
+export const completeLearnerCoursework = async (courseworkId: string, options?: Parameters<typeof customFetch>[1]): Promise<LearnerCoursework> => {
+
+  return customFetch<LearnerCoursework>(getCompleteLearnerCourseworkUrl(courseworkId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCompleteLearnerCourseworkMutationOptions = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeLearnerCoursework>>, TError,{courseworkId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof completeLearnerCoursework>>, TError,{courseworkId: string}, TContext> => {
+
+const mutationKey = ['completeLearnerCoursework'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeLearnerCoursework>>, {courseworkId: string}> = (props) => {
+          const {courseworkId} = props ?? {};
+
+          return  completeLearnerCoursework(courseworkId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CompleteLearnerCourseworkMutationResult = NonNullable<Awaited<ReturnType<typeof completeLearnerCoursework>>>
+
+    export type CompleteLearnerCourseworkMutationError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Complete an assigned demo coursework item
+ */
+export const useCompleteLearnerCoursework = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeLearnerCoursework>>, TError,{courseworkId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof completeLearnerCoursework>>,
+        TError,
+        {courseworkId: string},
+        TContext
+      > => {
+      return useMutation(getCompleteLearnerCourseworkMutationOptions(options));
+    }
+
+export const getUpdateLearnerGoalsUrl = () => {
+
+
+
+
+  return `/api/learner/goals`
+}
+
+/**
+ * @summary Update the authenticated learner's learning goals
+ */
+export const updateLearnerGoals = async (learnerGoalsUpdate: LearnerGoalsUpdate, options?: Parameters<typeof customFetch>[1]): Promise<LearnerGoals> => {
+
+  return customFetch<LearnerGoals>(getUpdateLearnerGoalsUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(learnerGoalsUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateLearnerGoalsMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLearnerGoals>>, TError,{data: BodyType<LearnerGoalsUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateLearnerGoals>>, TError,{data: BodyType<LearnerGoalsUpdate>}, TContext> => {
+
+const mutationKey = ['updateLearnerGoals'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateLearnerGoals>>, {data: BodyType<LearnerGoalsUpdate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateLearnerGoals(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateLearnerGoalsMutationResult = NonNullable<Awaited<ReturnType<typeof updateLearnerGoals>>>
+    export type UpdateLearnerGoalsMutationBody = BodyType<LearnerGoalsUpdate>
+    export type UpdateLearnerGoalsMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse>
+
+    /**
+ * @summary Update the authenticated learner's learning goals
+ */
+export const useUpdateLearnerGoals = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLearnerGoals>>, TError,{data: BodyType<LearnerGoalsUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateLearnerGoals>>,
+        TError,
+        {data: BodyType<LearnerGoalsUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateLearnerGoalsMutationOptions(options));
+    }
+
+export const getUpdateLearnerPresentationPreferencesUrl = () => {
+
+
+
+
+  return `/api/learner/presentation-preferences`
+}
+
+/**
+ * @summary Update allowed learner presentation preferences
+ */
+export const updateLearnerPresentationPreferences = async (presentationPreferencesUpdate: PresentationPreferencesUpdate, options?: Parameters<typeof customFetch>[1]): Promise<PresentationPreferences> => {
+
+  return customFetch<PresentationPreferences>(getUpdateLearnerPresentationPreferencesUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(presentationPreferencesUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateLearnerPresentationPreferencesMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLearnerPresentationPreferences>>, TError,{data: BodyType<PresentationPreferencesUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateLearnerPresentationPreferences>>, TError,{data: BodyType<PresentationPreferencesUpdate>}, TContext> => {
+
+const mutationKey = ['updateLearnerPresentationPreferences'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateLearnerPresentationPreferences>>, {data: BodyType<PresentationPreferencesUpdate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateLearnerPresentationPreferences(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateLearnerPresentationPreferencesMutationResult = NonNullable<Awaited<ReturnType<typeof updateLearnerPresentationPreferences>>>
+    export type UpdateLearnerPresentationPreferencesMutationBody = BodyType<PresentationPreferencesUpdate>
+    export type UpdateLearnerPresentationPreferencesMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse>
+
+    /**
+ * @summary Update allowed learner presentation preferences
+ */
+export const useUpdateLearnerPresentationPreferences = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLearnerPresentationPreferences>>, TError,{data: BodyType<PresentationPreferencesUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateLearnerPresentationPreferences>>,
+        TError,
+        {data: BodyType<PresentationPreferencesUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateLearnerPresentationPreferencesMutationOptions(options));
+    }
+
+export const getRecordLearnerActivityUrl = () => {
+
+
+
+
+  return `/api/learner/activity`
+}
+
+/**
+ * @summary Record learner activity and return inactivity policy
+ */
+export const recordLearnerActivity = async ( options?: Parameters<typeof customFetch>[1]): Promise<LearnerActivity> => {
+
+  return customFetch<LearnerActivity>(getRecordLearnerActivityUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRecordLearnerActivityMutationOptions = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordLearnerActivity>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordLearnerActivity>>, TError,void, TContext> => {
+
+const mutationKey = ['recordLearnerActivity'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordLearnerActivity>>, void> = () => {
+
+
+          return  recordLearnerActivity(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordLearnerActivityMutationResult = NonNullable<Awaited<ReturnType<typeof recordLearnerActivity>>>
+
+    export type RecordLearnerActivityMutationError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+
+    /**
+ * @summary Record learner activity and return inactivity policy
+ */
+export const useRecordLearnerActivity = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordLearnerActivity>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof recordLearnerActivity>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRecordLearnerActivityMutationOptions(options));
+    }
 

@@ -216,6 +216,98 @@ export interface TenantConfigurationUpdate {
   policies: TenantConfigurationUpdatePolicies;
 }
 
+export type LearnerCourseworkStatus = typeof LearnerCourseworkStatus[keyof typeof LearnerCourseworkStatus];
+
+
+export const LearnerCourseworkStatus = {
+  assigned: 'assigned',
+  completed: 'completed',
+} as const;
+
+export interface LearnerCoursework {
+  id: string;
+  title: string;
+  description: string;
+  /** @minimum 0 */
+  instructionalHours: number;
+  status: LearnerCourseworkStatus;
+  /** @nullable */
+  completedAt: string | null;
+}
+
+export interface LearnerResource {
+  id: string;
+  title: string;
+  summary: string;
+  content: string;
+  /** @pattern ^/learner/resources/[a-z0-9-]+$ */
+  route: string;
+}
+
+export interface LearnerGoals {
+  /**
+     * @maxItems 5
+     * @items.minLength 1
+     * @items.maxLength 280
+     */
+  goals: string[];
+}
+
+export interface LearnerGoalsUpdate {
+  /**
+     * @maxItems 5
+     * @items.minLength 1
+     * @items.maxLength 280
+     */
+  goals: string[];
+}
+
+export type PresentationPreferencesTextSize = typeof PresentationPreferencesTextSize[keyof typeof PresentationPreferencesTextSize];
+
+
+export const PresentationPreferencesTextSize = {
+  standard: 'standard',
+  large: 'large',
+  'extra-large': 'extra-large',
+} as const;
+
+export interface PresentationPreferences {
+  textSize: PresentationPreferencesTextSize;
+  highContrast: boolean;
+  reduceMotion: boolean;
+}
+
+export type PresentationPreferencesUpdateTextSize = typeof PresentationPreferencesUpdateTextSize[keyof typeof PresentationPreferencesUpdateTextSize];
+
+
+export const PresentationPreferencesUpdateTextSize = {
+  standard: 'standard',
+  large: 'large',
+  'extra-large': 'extra-large',
+} as const;
+
+export interface PresentationPreferencesUpdate {
+  textSize: PresentationPreferencesUpdateTextSize;
+  highContrast: boolean;
+  reduceMotion: boolean;
+}
+
+export interface LearnerActivity {
+  lastActiveAt: string;
+  sessionTimeoutMinutes: number;
+  inactivityTimeoutMinutes: number;
+}
+
+export interface LearnerHome {
+  coursework: LearnerCoursework[];
+  goals: LearnerGoals;
+  presentationPreferences: PresentationPreferences;
+  resources: LearnerResource[];
+  /** @minimum 0 */
+  instructionalHoursCompleted: number;
+  activity: LearnerActivity;
+}
+
 /**
  * Request validation failed
  */

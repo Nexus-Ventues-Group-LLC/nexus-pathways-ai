@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -123,7 +124,7 @@
   --chart-5: 28 80% 52%;
 
   --app-font-sans: 'Inter', system-ui, sans-serif;
-  --app-font-serif: Georgia, serif;
+  --app-font-serif: 'Outfit', sans-serif;
   --app-font-mono: 'JetBrains Mono', monospace;
   
   --radius: 0.5rem;
@@ -147,6 +148,52 @@
   --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+:root.high-contrast {
+  --border: 222 47% 20%;
+  --input: 222 47% 20%;
+  --ring: 222 47% 10%;
+  --muted: 210 40% 90%;
+  --muted-foreground: 222 47% 20%;
+  --foreground: 0 0% 0%;
+  --primary: 222 47% 10%;
+  --sidebar-border: 222 47% 20%;
+}
+
+.dark:root.high-contrast {
+  --border: 210 40% 98%;
+  --input: 210 40% 98%;
+  --ring: 210 40% 98%;
+  --muted: 222 47% 15%;
+  --muted-foreground: 210 40% 98%;
+  --foreground: 0 0% 100%;
+  --primary: 210 40% 100%;
+  --primary-foreground: 0 0% 0%;
+  --sidebar-border: 210 40% 98%;
+}
+
+:root[data-text-size="large"] {
+  font-size: 18px;
+}
+
+:root[data-text-size="extra-large"] {
+  font-size: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+:root.reduce-motion *, :root.reduce-motion ::before, :root.reduce-motion ::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 .dark {

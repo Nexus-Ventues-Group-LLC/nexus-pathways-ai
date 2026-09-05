@@ -1,7 +1,8 @@
 import {
   agenciesTable, cohortsTable, db, facilitiesTable, learnerProfilesTable, organizationsTable,
   permissionsTable, programsTable, regionsTable, rolePermissionsTable, rolesTable, staffProfilesTable,
-  tenantConfigurationsTable, userRoleAssignmentsTable, usersTable,
+  tenantConfigurationsTable, userRoleAssignmentsTable, usersTable, learnerCourseworkAssignmentsTable,
+  learnerCourseworkTable, approvedLearnerResourcesTable,
 } from "@workspace/db";
 
 const ids = {
@@ -13,6 +14,8 @@ const ids = {
   overview: "10000000-0000-4000-8000-000000000020", audit: "10000000-0000-4000-8000-000000000021", manageHierarchy: "10000000-0000-4000-8000-000000000022", manageTenant: "10000000-0000-4000-8000-000000000023",
   admin: "10000000-0000-4000-8000-000000000030", educator: "10000000-0000-4000-8000-000000000031", learner: "10000000-0000-4000-8000-000000000032",
   facilityAdmin: "10000000-0000-4000-8000-000000000033",
+  coursework: "10000000-0000-4000-8000-000000000050",
+  resource: "10000000-0000-4000-8000-000000000051",
 };
 async function seed() {
   await db.insert(organizationsTable).values({ id: ids.org, name: "Escambia County Pathways" }).onConflictDoNothing();
@@ -47,6 +50,27 @@ async function seed() {
   ]).onConflictDoNothing();
   await db.insert(staffProfilesTable).values([{ userId: ids.admin, title: "Nexus Administrator" }, { userId: ids.facilityAdmin, title: "Facility Administrator" }, { userId: ids.educator, title: "Learning Facilitator" }]).onConflictDoNothing();
   await db.insert(learnerProfilesTable).values({ userId: ids.learner, cohortId: ids.cohort }).onConflictDoNothing();
+  await db.insert(learnerCourseworkTable).values({
+    id: ids.coursework, organizationId: ids.org, cohortId: ids.cohort,
+    title: "Building a Weekly Learning Routine", description: "Practice planning focused study time with this guided demo lesson.", instructionalMinutes: 30,
+  }).onConflictDoNothing();
+  await db.insert(learnerCourseworkAssignmentsTable).values({ learnerUserId: ids.learner, courseworkId: ids.coursework }).onConflictDoNothing();
+  await db.insert(approvedLearnerResourcesTable).values({
+    id: ids.resource,
+    organizationId: ids.org,
+    title: "Nexus learning strategies",
+    summary: "Practical ways to plan focused study time and remember what you learn.",
+    content: "Choose one clear goal for each study session. Work in focused blocks, pause briefly, and finish by writing down the next step. Review completed work at the end of the week and adjust your plan with your instructor when needed.",
+    route: "/learner/resources/learning-strategies",
+  }).onConflictDoUpdate({
+    target: approvedLearnerResourcesTable.id,
+    set: {
+      title: "Nexus learning strategies",
+      summary: "Practical ways to plan focused study time and remember what you learn.",
+      content: "Choose one clear goal for each study session. Work in focused blocks, pause briefly, and finish by writing down the next step. Review completed work at the end of the week and adjust your plan with your instructor when needed.",
+      route: "/learner/resources/learning-strategies",
+    },
+  });
   const facilityScope = { organizationId: ids.org, agencyId: ids.agency, regionId: ids.region, facilityId: ids.facility, programId: ids.program, cohortId: ids.cohort };
   await db.insert(userRoleAssignmentsTable).values({
     id: "10000000-0000-4000-8000-000000000040", userId: ids.admin, roleId: ids.adminRole, organizationId: ids.org,

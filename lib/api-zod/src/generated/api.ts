@@ -345,3 +345,121 @@ export const ListAuditEventsResponseItem = zod.object({
 export const ListAuditEventsResponse = zod.array(ListAuditEventsResponseItem)
 
 
+/**
+ * @summary Get the authenticated learner's assigned learning experience
+ */
+export const getLearnerHomeResponseCourseworkItemInstructionalHoursMin = 0;
+
+export const getLearnerHomeResponseGoalsGoalsItemMax = 280;
+
+export const getLearnerHomeResponseGoalsGoalsMax = 5;
+
+export const getLearnerHomeResponseResourcesItemRouteRegExp = new RegExp('^/learner/resources/[a-z0-9-]+$');
+export const getLearnerHomeResponseInstructionalHoursCompletedMin = 0;
+
+
+
+export const GetLearnerHomeResponse = zod.object({
+  "coursework": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "instructionalHours": zod.number().min(getLearnerHomeResponseCourseworkItemInstructionalHoursMin),
+  "status": zod.enum(['assigned', 'completed']),
+  "completedAt": zod.coerce.date().nullable()
+})),
+  "goals": zod.object({
+  "goals": zod.array(zod.string().min(1).max(getLearnerHomeResponseGoalsGoalsItemMax)).max(getLearnerHomeResponseGoalsGoalsMax)
+}),
+  "presentationPreferences": zod.object({
+  "textSize": zod.enum(['standard', 'large', 'extra-large']),
+  "highContrast": zod.boolean(),
+  "reduceMotion": zod.boolean()
+}),
+  "resources": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "content": zod.string(),
+  "route": zod.string().regex(getLearnerHomeResponseResourcesItemRouteRegExp)
+})),
+  "instructionalHoursCompleted": zod.number().min(getLearnerHomeResponseInstructionalHoursCompletedMin),
+  "activity": zod.object({
+  "lastActiveAt": zod.coerce.date(),
+  "sessionTimeoutMinutes": zod.number(),
+  "inactivityTimeoutMinutes": zod.number()
+})
+})
+
+
+/**
+ * @summary Complete an assigned demo coursework item
+ */
+export const CompleteLearnerCourseworkParams = zod.object({
+  "courseworkId": zod.coerce.string()
+})
+
+export const completeLearnerCourseworkResponseInstructionalHoursMin = 0;
+
+
+
+export const CompleteLearnerCourseworkResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "instructionalHours": zod.number().min(completeLearnerCourseworkResponseInstructionalHoursMin),
+  "status": zod.enum(['assigned', 'completed']),
+  "completedAt": zod.coerce.date().nullable()
+})
+
+
+/**
+ * @summary Update the authenticated learner's learning goals
+ */
+export const updateLearnerGoalsBodyGoalsItemMax = 280;
+
+export const updateLearnerGoalsBodyGoalsMax = 5;
+
+
+
+export const UpdateLearnerGoalsBody = zod.object({
+  "goals": zod.array(zod.string().min(1).max(updateLearnerGoalsBodyGoalsItemMax)).max(updateLearnerGoalsBodyGoalsMax)
+})
+
+export const updateLearnerGoalsResponseGoalsItemMax = 280;
+
+export const updateLearnerGoalsResponseGoalsMax = 5;
+
+
+
+export const UpdateLearnerGoalsResponse = zod.object({
+  "goals": zod.array(zod.string().min(1).max(updateLearnerGoalsResponseGoalsItemMax)).max(updateLearnerGoalsResponseGoalsMax)
+})
+
+
+/**
+ * @summary Update allowed learner presentation preferences
+ */
+export const UpdateLearnerPresentationPreferencesBody = zod.object({
+  "textSize": zod.enum(['standard', 'large', 'extra-large']),
+  "highContrast": zod.boolean(),
+  "reduceMotion": zod.boolean()
+})
+
+export const UpdateLearnerPresentationPreferencesResponse = zod.object({
+  "textSize": zod.enum(['standard', 'large', 'extra-large']),
+  "highContrast": zod.boolean(),
+  "reduceMotion": zod.boolean()
+})
+
+
+/**
+ * @summary Record learner activity and return inactivity policy
+ */
+export const RecordLearnerActivityResponse = zod.object({
+  "lastActiveAt": zod.coerce.date(),
+  "sessionTimeoutMinutes": zod.number(),
+  "inactivityTimeoutMinutes": zod.number()
+})
+
+
