@@ -3,38 +3,77 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { ClerkProvider } from '@clerk/clerk-react';
+import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+
+import LandingPage from '@/pages/landing';
+import SignInPage from '@/pages/auth/sign-in';
+import SignUpPage from '@/pages/auth/sign-up';
+import LearnerPortal from '@/pages/learner-portal';
+import EducatorPortal from '@/pages/educator-portal';
+import AdminPortal from '@/pages/admin-portal';
+import Unauthorized from '@/pages/unauthorized';
 import NotFound from '@/pages/not-found';
-import {
-  Route,
-  Switch,
-  useLocation,
-  Router as WouterRouter,
-} from 'wouter';
 
-const queryClient = new QueryClient();
+import { ProtectedRoute } from '@/components/auth/protected-route';
+import { PortalLayout } from '@/components/layout/portal-layout';
 
-function Home() {
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Replit Agent is building...
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Your app will appear here once it's ready.
-        </p>
-      </div>
-    </div>
-  );
-}
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || "pk_test_c3VwZXItbWVkdXNhLTQ1LmNsZXJrLmFjY291bnRzLmRldiQ";
 
 function Router() {
   return (
-    // Keep a shared shell (sidebar, navbar) outside the boundary so it
-    // survives a page crash.
     <RoutedErrorBoundary>
       <Switch>
-        <Route path="/" component={Home} />
+        <Route path="/" component={LandingPage} />
+        <Route path="/sign-in" component={SignInPage} />
+        <Route path="/sign-up" component={SignUpPage} />
+        
+        {/* Learner Portal Routes */}
+        <Route path="/learner" nest>
+          <ProtectedRoute allowedRoles={['learner']}>
+            <PortalLayout>
+              <Switch>
+                <Route path="/" component={LearnerPortal} />
+                <Route component={NotFound} />
+              </Switch>
+            </PortalLayout>
+          </ProtectedRoute>
+        </Route>
+
+        {/* Educator Portal Routes */}
+        <Route path="/educator" nest>
+          <ProtectedRoute allowedRoles={['educator', 'administrator']}>
+            <PortalLayout>
+              <Switch>
+                <Route path="/" component={EducatorPortal} />
+                <Route component={NotFound} />
+              </Switch>
+            </PortalLayout>
+          </ProtectedRoute>
+        </Route>
+
+        {/* Administrator Portal Routes */}
+        <Route path="/administrator" nest>
+          <ProtectedRoute allowedRoles={['administrator']}>
+            <PortalLayout>
+              <Switch>
+                <Route path="/" component={AdminPortal} />
+                <Route component={NotFound} />
+              </Switch>
+            </PortalLayout>
+          </ProtectedRoute>
+        </Route>
+
+        <Route path="/unauthorized" component={Unauthorized} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
@@ -46,17 +85,17 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
-function App() {
+export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ClerkProvider publishableKey={clerkPubKey}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 }
-
-export default App;

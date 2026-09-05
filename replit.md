@@ -1,45 +1,17 @@
-# [Project name]
+# Nexus Pathways AI
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Phase 1 is an Express, Drizzle, PostgreSQL foundation for Clerk-cookie authentication, scoped organization access, local RBAC, revocable application sessions, and immutable audit records.
 
-## Run & Operate
+## Commands
+- `pnpm run typecheck` — workspace typecheck
+- `pnpm --filter @workspace/db run push` — apply development schema
+- `pnpm --filter @workspace/scripts run seed:nexus-phase1` — opt-in deterministic synthetic seed
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+## Architecture and conventions
+- The OpenAPI contract and generated API libraries are source-controlled and are not edited for implementation work.
+- Clerk establishes identity through its canonical Express middleware and browser session cookies. PostgreSQL alone supplies roles, permissions, and hierarchy scope.
+- Keep handlers thin, validate all API inputs and outputs with `@workspace/api-zod`, and use structured pino logging only.
+- Scope predicates belong in SQL queries. Do not load cross-tenant or cross-facility data before authorizing it.
 
-## Stack
-
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
-
-## Where things live
-
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
-
-## Architecture decisions
-
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+## Phase 1 boundary
+Identity, hierarchy, profiles, assignments, RBAC, session revocation, audit events, and the existing API endpoints are in scope. Curriculum, assessments, AI Tutor, career, reentry, Passport, reporting, integrations, edge deployment, and later phases are deferred.

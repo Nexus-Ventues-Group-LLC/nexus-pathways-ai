@@ -104,13 +104,13 @@ export const GetAdminOverviewResponse = zod.object({
   "id": zod.string(),
   "name": zod.string()
 }),
-  "agencies": zod.int(),
-  "regions": zod.int(),
-  "facilities": zod.int(),
-  "programs": zod.int(),
-  "cohorts": zod.int(),
-  "learners": zod.int(),
-  "educators": zod.int(),
+  "agencies": zod.number(),
+  "regions": zod.number(),
+  "facilities": zod.number(),
+  "programs": zod.number(),
+  "cohorts": zod.number(),
+  "learners": zod.number(),
+  "educators": zod.number(),
   "syntheticDataNotice": zod.string()
 })
 
@@ -124,7 +124,7 @@ export const listAuditEventsQueryLimitMax = 100;
 
 
 export const ListAuditEventsQueryParams = zod.object({
-  "limit": zod.coerce.number().int().min(1).max(listAuditEventsQueryLimitMax).default(listAuditEventsQueryLimitDefault)
+  "limit": zod.coerce.number().min(1).max(listAuditEventsQueryLimitMax).default(listAuditEventsQueryLimitDefault)
 })
 
 export const ListAuditEventsResponseItem = zod.object({
