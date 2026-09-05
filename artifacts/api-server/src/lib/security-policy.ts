@@ -2,7 +2,7 @@
  * Pure authorization decisions shared by middleware and regression tests.
  * No Clerk, database, or HTTP dependency belongs in this module.
  */
-export type ScopeIds = { organizationId: string; facilityId: string };
+export type ScopeIds = { organizationId: string; agencyId?: string | null; regionId?: string | null; facilityId?: string | null };
 
 export function authenticationOutcome(input: {
   clerkUserId: string | null;
@@ -18,7 +18,14 @@ export function permissionOutcome(permissions: readonly string[], required: stri
 
 /** Equivalent to the tenant/facility SQL predicates used by scoped services. */
 export function isInScope(record: ScopeIds, scope: ScopeIds): boolean {
-  return record.organizationId === scope.organizationId && record.facilityId === scope.facilityId;
+  return record.organizationId === scope.organizationId
+    && (!scope.agencyId || record.agencyId === scope.agencyId)
+    && (!scope.regionId || record.regionId === scope.regionId)
+    && (!scope.facilityId || record.facilityId === scope.facilityId);
+}
+
+export function canCreateFacility(scope: ScopeIds): boolean {
+  return !scope.facilityId;
 }
 
 export function auditDraft(input: {
@@ -34,7 +41,7 @@ export function auditDraft(input: {
     actorUserId: input.actorUserId,
     actorDisplayName: input.actorDisplayName,
     organizationId: input.scope.organizationId,
-    facilityId: input.scope.facilityId,
+    facilityId: input.scope.facilityId ?? null,
     action: input.action,
     category: input.category,
     outcome: input.outcome,

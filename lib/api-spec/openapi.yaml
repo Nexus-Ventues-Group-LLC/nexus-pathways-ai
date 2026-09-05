@@ -80,6 +80,171 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
+  /admin/hierarchy:
+    get:
+      operationId: getAdminHierarchy
+      tags: [administration]
+      summary: Get the organization hierarchy visible to the administrator
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Scoped hierarchy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationHierarchy"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /admin/facilities:
+    post:
+      operationId: createFacility
+      tags: [administration]
+      summary: Create a facility beneath an authorized region
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FacilityInput"
+      responses:
+        "201":
+          description: Created facility
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Facility"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /admin/facilities/{facilityId}:
+    patch:
+      operationId: updateFacility
+      tags: [administration]
+      summary: Update a visible facility
+      security:
+        - clerkSession: []
+      parameters:
+        - $ref: "#/components/parameters/FacilityId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FacilityUpdate"
+      responses:
+        "200":
+          description: Updated facility
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Facility"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /admin/programs:
+    post:
+      operationId: createProgram
+      tags: [administration]
+      summary: Create a program beneath an authorized facility
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramInput"
+      responses:
+        "201":
+          description: Created program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /admin/programs/{programId}:
+    patch:
+      operationId: updateProgram
+      tags: [administration]
+      summary: Update a visible program
+      security:
+        - clerkSession: []
+      parameters:
+        - $ref: "#/components/parameters/ProgramId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramUpdate"
+      responses:
+        "200":
+          description: Updated program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /admin/tenant-configuration:
+    get:
+      operationId: getTenantConfiguration
+      tags: [administration]
+      summary: Get authorized tenant module and policy configuration
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Tenant configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantConfiguration"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    patch:
+      operationId: updateTenantConfiguration
+      tags: [administration]
+      summary: Update authorized tenant module and policy configuration
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TenantConfigurationUpdate"
+      responses:
+        "200":
+          description: Updated tenant configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantConfiguration"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
   /audit-events:
     get:
       operationId: listAuditEvents
@@ -117,6 +282,12 @@ components:
       bearerFormat: JWT
       description: Clerk session cookie in browser or bearer token for API clients
   responses:
+    BadRequest:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
     Unauthorized:
       description: Authentication is required
       content:
@@ -129,6 +300,23 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource not found in the authorized scope
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  parameters:
+    FacilityId:
+      name: facilityId
+      in: path
+      required: true
+      schema: { type: string }
+    ProgramId:
+      name: programId
+      in: path
+      required: true
+      schema: { type: string }
   schemas:
     Error:
       type: object
@@ -175,16 +363,19 @@ components:
         organization:
           $ref: "#/components/schemas/ScopeRef"
         agency:
-          $ref: "#/components/schemas/ScopeRef"
+          anyOf: [{ $ref: "#/components/schemas/ScopeRef" }, { type: "null" }]
         region:
-          $ref: "#/components/schemas/ScopeRef"
+          anyOf: [{ $ref: "#/components/schemas/ScopeRef" }, { type: "null" }]
         facility:
-          $ref: "#/components/schemas/ScopeRef"
+          anyOf: [{ $ref: "#/components/schemas/ScopeRef" }, { type: "null" }]
         program:
-          $ref: "#/components/schemas/ScopeRef"
+          anyOf: [{ $ref: "#/components/schemas/ScopeRef" }, { type: "null" }]
         cohort:
-          $ref: "#/components/schemas/ScopeRef"
-      required: [organization, agency, region, facility, program, cohort]
+          anyOf: [{ $ref: "#/components/schemas/ScopeRef" }, { type: "null" }]
+        level:
+          type: string
+          enum: [organization, agency, region, facility, program, cohort]
+      required: [organization, agency, region, facility, program, cohort, level]
     Dashboard:
       type: object
       properties:
@@ -256,4 +447,130 @@ components:
         outcome:
           type: string
       required: [id, action, category, actorDisplayName, resourceType, createdAt, outcome]
+    Facility:
+      type: object
+      properties:
+        id: { type: string }
+        regionId: { type: string }
+        name: { type: string }
+      required: [id, regionId, name]
+    FacilityInput:
+      type: object
+      properties:
+        regionId: { type: string }
+        name: { type: string, minLength: 1 }
+      required: [regionId, name]
+    FacilityUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+      required: [name]
+    Program:
+      type: object
+      properties:
+        id: { type: string }
+        facilityId: { type: string }
+        name: { type: string }
+      required: [id, facilityId, name]
+    ProgramInput:
+      type: object
+      properties:
+        facilityId: { type: string }
+        name: { type: string, minLength: 1 }
+      required: [facilityId, name]
+    ProgramUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+      required: [name]
+    HierarchyProgram:
+      allOf:
+        - $ref: "#/components/schemas/Program"
+    HierarchyFacility:
+      allOf:
+        - $ref: "#/components/schemas/Facility"
+      properties:
+        programs:
+          type: array
+          items: { $ref: "#/components/schemas/HierarchyProgram" }
+      required: [programs]
+    HierarchyRegion:
+      type: object
+      properties:
+        id: { type: string }
+        agencyId: { type: string }
+        name: { type: string }
+        facilities:
+          type: array
+          items: { $ref: "#/components/schemas/HierarchyFacility" }
+      required: [id, agencyId, name, facilities]
+    HierarchyAgency:
+      type: object
+      properties:
+        id: { type: string }
+        organizationId: { type: string }
+        name: { type: string }
+        regions:
+          type: array
+          items: { $ref: "#/components/schemas/HierarchyRegion" }
+      required: [id, organizationId, name, regions]
+    OrganizationHierarchy:
+      type: object
+      properties:
+        organization: { $ref: "#/components/schemas/ScopeRef" }
+        agencies:
+          type: array
+          items: { $ref: "#/components/schemas/HierarchyAgency" }
+      required: [organization, agencies]
+    TenantConfiguration:
+      type: object
+      properties:
+        organizationId: { type: string }
+        modules:
+          type: object
+          additionalProperties: false
+          properties:
+            abe: { type: boolean }
+            hse: { type: boolean }
+            specialEducation: { type: boolean }
+            accessibility: { type: boolean }
+            aiTutor: { type: boolean }
+            career: { type: boolean }
+            reentry: { type: boolean }
+            passport: { type: boolean }
+            offlineMode: { type: boolean }
+          required: [abe, hse, specialEducation, accessibility, aiTutor, career, reentry, passport, offlineMode]
+        policies:
+          type: object
+          additionalProperties: false
+          properties:
+            sessionTimeoutMinutes: { type: number, multipleOf: 1, minimum: 5, maximum: 480 }
+            inactivityTimeoutMinutes: { type: number, multipleOf: 1, minimum: 5, maximum: 240 }
+          required: [sessionTimeoutMinutes, inactivityTimeoutMinutes]
+      required: [organizationId, modules, policies]
+    TenantConfigurationUpdate:
+      type: object
+      properties:
+        modules:
+          type: object
+          additionalProperties: false
+          properties:
+            abe: { type: boolean }
+            hse: { type: boolean }
+            specialEducation: { type: boolean }
+            accessibility: { type: boolean }
+            aiTutor: { type: boolean }
+            career: { type: boolean }
+            reentry: { type: boolean }
+            passport: { type: boolean }
+            offlineMode: { type: boolean }
+          required: [abe, hse, specialEducation, accessibility, aiTutor, career, reentry, passport, offlineMode]
+        policies:
+          type: object
+          additionalProperties: false
+          properties:
+            sessionTimeoutMinutes: { type: number, multipleOf: 1, minimum: 5, maximum: 480 }
+            inactivityTimeoutMinutes: { type: number, multipleOf: 1, minimum: 5, maximum: 240 }
+          required: [sessionTimeoutMinutes, inactivityTimeoutMinutes]
+      required: [modules, policies]
 

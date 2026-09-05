@@ -39,7 +39,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-primary/5 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
           <div className="container mx-auto px-4 text-center">
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground mb-8">
-              Phase 1 Platform Live
+              Phase 2 Organizational Model Live
             </div>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-primary max-w-4xl mx-auto leading-tight mb-6">
               Empowering education and workforce mobility.
@@ -152,7 +152,7 @@ export default function LandingPage() {
             <span className="font-semibold">Nexus Pathways AI</span>
           </div>
           <p className="text-sm text-primary-foreground/60">
-            &copy; {new Date().getFullYear()} Nexus Pathways. Phase 1 Platform.
+            &copy; {new Date().getFullYear()} Nexus Pathways. Phase 2 Platform.
           </p>
         </div>
       </footer>

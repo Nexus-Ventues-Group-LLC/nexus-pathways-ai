@@ -26,7 +26,9 @@ import {
   ShieldAlert, 
   Award,
   BookMarked,
-  Activity
+  Activity,
+  Building,
+  GraduationCap
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -48,10 +50,12 @@ export function PortalLayout({ children }: PortalLayoutProps) {
   };
 
   const adminLinks = [
-    { title: 'Overview', url: '/administrator', icon: LayoutDashboard },
-    { title: 'Audit Events', url: '/administrator/audit', icon: ShieldAlert },
-    { title: 'Settings', url: '/administrator/settings', icon: Settings },
-  ];
+    { title: 'Overview', url: '/administrator', icon: LayoutDashboard, permission: 'admin.overview' },
+    { title: 'Facilities', url: '/administrator/facilities', icon: Building, permission: 'admin.hierarchy.manage' },
+    { title: 'Programs', url: '/administrator/programs', icon: GraduationCap, permission: 'admin.hierarchy.manage' },
+    { title: 'Settings', url: '/administrator/settings', icon: Settings, permission: 'tenant.configuration.manage' },
+    { title: 'Audit Events', url: '/administrator/audit', icon: ShieldAlert, permission: 'audit.read' },
+  ].filter((item) => user.permissions.includes(item.permission));
 
   const educatorLinks = [
     { title: 'Dashboard', url: '/educator', icon: LayoutDashboard },

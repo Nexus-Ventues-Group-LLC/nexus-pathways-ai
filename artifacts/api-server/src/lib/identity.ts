@@ -7,9 +7,10 @@ import {
 
 export type PortalContext = {
   userId: string; displayName: string; email: string | null; role: string; permissions: string[];
-  scope: { organization: Ref; agency: Ref; region: Ref; facility: Ref; program: Ref; cohort: Ref };
+  scope: { organization: Ref; agency: Ref | null; region: Ref | null; facility: Ref | null; program: Ref | null; cohort: Ref | null; level: ScopeLevel };
 };
 type Ref = { id: string; name: string };
+export type ScopeLevel = "organization" | "agency" | "region" | "facility" | "program" | "cohort";
 
 export async function provisionIdentity(input: { clerkUserId: string; displayName: string; email: string | null; sessionId: string | null }) {
   let [user] = await db.select().from(usersTable).where(eq(usersTable.clerkUserId, input.clerkUserId)).limit(1);
@@ -30,20 +31,21 @@ export async function getPortalContext(userId: string): Promise<PortalContext | 
     .innerJoin(usersTable, eq(userRoleAssignmentsTable.userId, usersTable.id))
     .innerJoin(rolesTable, eq(userRoleAssignmentsTable.roleId, rolesTable.id))
     .innerJoin(organizationsTable, eq(userRoleAssignmentsTable.organizationId, organizationsTable.id))
-    .innerJoin(agenciesTable, eq(userRoleAssignmentsTable.agencyId, agenciesTable.id))
-    .innerJoin(regionsTable, eq(userRoleAssignmentsTable.regionId, regionsTable.id))
-    .innerJoin(facilitiesTable, eq(userRoleAssignmentsTable.facilityId, facilitiesTable.id))
-    .innerJoin(programsTable, eq(userRoleAssignmentsTable.programId, programsTable.id))
-    .innerJoin(cohortsTable, eq(userRoleAssignmentsTable.cohortId, cohortsTable.id))
+    .leftJoin(agenciesTable, eq(userRoleAssignmentsTable.agencyId, agenciesTable.id))
+    .leftJoin(regionsTable, eq(userRoleAssignmentsTable.regionId, regionsTable.id))
+    .leftJoin(facilitiesTable, eq(userRoleAssignmentsTable.facilityId, facilitiesTable.id))
+    .leftJoin(programsTable, eq(userRoleAssignmentsTable.programId, programsTable.id))
+    .leftJoin(cohortsTable, eq(userRoleAssignmentsTable.cohortId, cohortsTable.id))
     .where(eq(userRoleAssignmentsTable.userId, userId)).limit(1);
   const row = rows[0];
   if (!row) return null;
   const permissions = await db.select({ key: permissionsTable.key }).from(rolePermissionsTable)
     .innerJoin(permissionsTable, eq(rolePermissionsTable.permissionId, permissionsTable.id))
     .where(eq(rolePermissionsTable.roleId, row.roleId));
-  const ref = (x: { id: string; name: string }): Ref => ({ id: x.id, name: x.name });
+  const ref = (x: { id: string; name: string } | null): Ref | null => x ? ({ id: x.id, name: x.name }) : null;
+  const level: ScopeLevel = row.cohort ? "cohort" : row.program ? "program" : row.facility ? "facility" : row.region ? "region" : row.agency ? "agency" : "organization";
   return { userId: row.userId, displayName: row.displayName, email: row.email, role: row.role, permissions: permissions.map((p) => p.key),
-    scope: { organization: ref(row.organization), agency: ref(row.agency), region: ref(row.region), facility: ref(row.facility), program: ref(row.program), cohort: ref(row.cohort) } };
+    scope: { organization: ref(row.organization)!, agency: ref(row.agency), region: ref(row.region), facility: ref(row.facility), program: ref(row.program), cohort: ref(row.cohort), level } };
 }
 
 export async function writeAudit(input: { actorUserId?: string; actorDisplayName: string; organizationId?: string; facilityId?: string; action: string; category: string; resourceType?: string; outcome: string }) {

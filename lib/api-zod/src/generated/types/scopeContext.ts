@@ -5,13 +5,15 @@
  * Nexus Pathways AI Phase 1 foundation API
  * OpenAPI spec version: 0.1.0
  */
+import type { ScopeContextLevel } from './scopeContextLevel';
 import type { ScopeRef } from './scopeRef';
 
 export interface ScopeContext {
   organization: ScopeRef;
-  agency: ScopeRef;
-  region: ScopeRef;
-  facility: ScopeRef;
-  program: ScopeRef;
-  cohort: ScopeRef;
+  agency: ScopeRef | null;
+  region: ScopeRef | null;
+  facility: ScopeRef | null;
+  program: ScopeRef | null;
+  cohort: ScopeRef | null;
+  level: ScopeContextLevel;
 }

@@ -21,6 +21,12 @@ export const regionsTable = pgTable("regions", { id: id("id"), agencyId: uuid("a
 export const facilitiesTable = pgTable("facilities", { id: id("id"), regionId: uuid("region_id").notNull().references(() => regionsTable.id), name: text("name").notNull(), createdAt: createdAt });
 export const programsTable = pgTable("programs", { id: id("id"), facilityId: uuid("facility_id").notNull().references(() => facilitiesTable.id), name: text("name").notNull(), createdAt: createdAt });
 export const cohortsTable = pgTable("cohorts", { id: id("id"), programId: uuid("program_id").notNull().references(() => programsTable.id), name: text("name").notNull(), createdAt: createdAt });
+export const tenantConfigurationsTable = pgTable("tenant_configurations", {
+  organizationId: uuid("organization_id").primaryKey().references(() => organizationsTable.id),
+  modules: jsonb("modules").notNull().default({}),
+  policies: jsonb("policies").notNull().default({}),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+});
 
 export const usersTable = pgTable("users", {
   id: id("id"), clerkUserId: text("clerk_user_id").notNull(), displayName: text("display_name").notNull(),
@@ -52,7 +58,10 @@ export const organizationsRelations = relations(organizationsTable, ({ many }) =
 export const agenciesRelations = relations(agenciesTable, ({ one, many }) => ({ organization: one(organizationsTable, { fields: [agenciesTable.organizationId], references: [organizationsTable.id] }), regions: many(regionsTable) }));
 export const insertOrganizationSchema = createInsertSchema(organizationsTable).omit({ id: true, createdAt: true });
 export const insertAuditEventSchema = createInsertSchema(auditEventsTable);
+export const insertTenantConfigurationSchema = createInsertSchema(tenantConfigurationsTable).omit({ updatedAt: true });
 export type Organization = typeof organizationsTable.$inferSelect;
 export type User = typeof usersTable.$inferSelect;
 export type AuditEvent = typeof auditEventsTable.$inferSelect;
 export type InsertAuditEvent = z.infer<typeof insertAuditEventSchema>;
+export type TenantConfiguration = typeof tenantConfigurationsTable.$inferSelect;
+export type InsertTenantConfiguration = z.infer<typeof insertTenantConfigurationSchema>;

@@ -1,0 +1,1 @@
+- [OpenAPI integer codegen](openapi-integer-codegen.md) — use number plus multipleOf 1 because generated integer validators are incompatible with the resolved Zod version.

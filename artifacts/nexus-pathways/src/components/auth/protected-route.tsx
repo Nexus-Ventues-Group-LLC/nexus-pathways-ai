@@ -8,9 +8,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 interface ProtectedRouteProps {
   children: ReactNode;
   allowedRoles?: string[];
+  requiredPermissions?: string[];
 }
 
-export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+export function ProtectedRoute({ children, allowedRoles, requiredPermissions }: ProtectedRouteProps) {
   const { isLoaded, userId } = useAuth();
   
   if (!isLoaded) {
@@ -25,10 +26,10 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Redirect to="/sign-in" />;
   }
 
-  return <CurrentUserGuard allowedRoles={allowedRoles}>{children}</CurrentUserGuard>;
+  return <CurrentUserGuard allowedRoles={allowedRoles} requiredPermissions={requiredPermissions}>{children}</CurrentUserGuard>;
 }
 
-function CurrentUserGuard({ children, allowedRoles }: ProtectedRouteProps) {
+function CurrentUserGuard({ children, allowedRoles, requiredPermissions }: ProtectedRouteProps) {
   const { data: user, isLoading, error } = useGetCurrentUser();
 
   if (isLoading) {
@@ -57,6 +58,9 @@ function CurrentUserGuard({ children, allowedRoles }: ProtectedRouteProps) {
     if (!allowedRoles.includes(user.role)) {
       return <Redirect to="/unauthorized" />;
     }
+  }
+  if (requiredPermissions?.some((permission) => !user.permissions.includes(permission))) {
+    return <Redirect to="/unauthorized" />;
   }
 
   return <>{children}</>;

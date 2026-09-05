@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { auditDraft, authenticationOutcome, isInScope, permissionOutcome } from "./security-policy";
+import { auditDraft, authenticationOutcome, canCreateFacility, isInScope, permissionOutcome } from "./security-policy";
 
 const admin = ["admin.overview", "audit.read"];
 const educator = ["portal.read"];
@@ -32,6 +32,28 @@ describe("Phase 1 security policy", () => {
     expect(isInScope({ organizationId: "org-a", facilityId: "facility-1" }, scope)).toBe(true);
     expect(isInScope({ organizationId: "org-b", facilityId: "facility-1" }, scope)).toBe(false);
     expect(isInScope({ organizationId: "org-a", facilityId: "facility-2" }, scope)).toBe(false);
+  });
+
+  it("allows state and agency administrators to see every descendant facility", () => {
+    const stateScope = { organizationId: "org-a" };
+    const agencyScope = { organizationId: "org-a", agencyId: "agency-1" };
+    expect(isInScope({ organizationId: "org-a", agencyId: "agency-1", regionId: "r-1", facilityId: "f-1" }, stateScope)).toBe(true);
+    expect(isInScope({ organizationId: "org-a", agencyId: "agency-1", regionId: "r-2", facilityId: "f-2" }, agencyScope)).toBe(true);
+    expect(isInScope({ organizationId: "org-a", agencyId: "agency-2", regionId: "r-3", facilityId: "f-3" }, agencyScope)).toBe(false);
+  });
+
+  it("keeps facility-only administrators from traversing sibling facilities", () => {
+    const facilityScope = { organizationId: "org-a", agencyId: "agency-1", regionId: "r-1", facilityId: "f-1" };
+    expect(isInScope({ organizationId: "org-a", agencyId: "agency-1", regionId: "r-1", facilityId: "f-1" }, facilityScope)).toBe(true);
+    expect(isInScope({ organizationId: "org-a", agencyId: "agency-1", regionId: "r-1", facilityId: "f-2" }, facilityScope)).toBe(false);
+    expect(isInScope({ organizationId: "org-b", agencyId: "agency-1", regionId: "r-1", facilityId: "f-1" }, facilityScope)).toBe(false);
+  });
+
+  it("allows only ancestor-scoped administrators to create facilities", () => {
+    expect(canCreateFacility({ organizationId: "org-a" })).toBe(true);
+    expect(canCreateFacility({ organizationId: "org-a", agencyId: "agency-1" })).toBe(true);
+    expect(canCreateFacility({ organizationId: "org-a", agencyId: "agency-1", regionId: "r-1" })).toBe(true);
+    expect(canCreateFacility({ organizationId: "org-a", agencyId: "agency-1", regionId: "r-1", facilityId: "f-1" })).toBe(false);
   });
 
   it("creates scoped, secret-free audit event records", () => {

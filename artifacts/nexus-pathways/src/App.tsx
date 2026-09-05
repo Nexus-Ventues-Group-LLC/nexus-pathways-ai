@@ -11,7 +11,11 @@ import SignInPage from '@/pages/auth/sign-in';
 import SignUpPage from '@/pages/auth/sign-up';
 import LearnerPortal from '@/pages/learner-portal';
 import EducatorPortal from '@/pages/educator-portal';
-import AdminPortal from '@/pages/admin-portal';
+import AdminPortal from '@/pages/administrator/overview';
+import AdminFacilities from '@/pages/administrator/facilities';
+import AdminPrograms from '@/pages/administrator/programs';
+import AdminSettings from '@/pages/administrator/settings';
+import AdminAudit from '@/pages/administrator/audit';
 import Unauthorized from '@/pages/unauthorized';
 import NotFound from '@/pages/not-found';
 
@@ -66,7 +70,21 @@ function Router() {
           <ProtectedRoute allowedRoles={['administrator']}>
             <PortalLayout>
               <Switch>
-                <Route path="/" component={AdminPortal} />
+                <Route path="/">
+                  <ProtectedRoute requiredPermissions={['admin.overview']}><AdminPortal /></ProtectedRoute>
+                </Route>
+                <Route path="/facilities">
+                  <ProtectedRoute requiredPermissions={['admin.hierarchy.manage']}><AdminFacilities /></ProtectedRoute>
+                </Route>
+                <Route path="/programs">
+                  <ProtectedRoute requiredPermissions={['admin.hierarchy.manage']}><AdminPrograms /></ProtectedRoute>
+                </Route>
+                <Route path="/settings">
+                  <ProtectedRoute requiredPermissions={['tenant.configuration.manage']}><AdminSettings /></ProtectedRoute>
+                </Route>
+                <Route path="/audit">
+                  <ProtectedRoute requiredPermissions={['audit.read']}><AdminAudit /></ProtectedRoute>
+                </Route>
                 <Route component={NotFound} />
               </Switch>
             </PortalLayout>

@@ -22,7 +22,7 @@ export const requirePortalAuth: RequestHandler = async (req, res, next) => {
   const context = await getPortalContext(provisioned.user.id);
   if (!context) { await writeAudit({ actorUserId: provisioned.user.id, actorDisplayName: provisioned.user.displayName, action: "access.denied", category: "authorization", outcome: "denied" }); res.status(403).json({ error: "No active Nexus scope assignment" }); return; }
   req.portalContext = context;
-  await writeAudit({ actorUserId: context.userId, actorDisplayName: context.displayName, organizationId: context.scope.organization.id, facilityId: context.scope.facility.id, action: "access.authenticated", category: "security", outcome: "success" });
+  await writeAudit({ actorUserId: context.userId, actorDisplayName: context.displayName, organizationId: context.scope.organization.id, facilityId: context.scope.facility?.id, action: "access.authenticated", category: "security", outcome: "success" });
   next();
 };
 export function requirePermission(permission: string): RequestHandler {
@@ -30,7 +30,7 @@ export function requirePermission(permission: string): RequestHandler {
     const context = req.portalContext;
     if (!context) { res.status(401).json({ error: "Unauthorized" }); return; }
     if (permissionOutcome(context.permissions, permission) !== 200) {
-      await writeAudit({ actorUserId: context.userId, actorDisplayName: context.displayName, organizationId: context.scope.organization.id, facilityId: context.scope.facility.id, action: "access.denied", category: "authorization", resourceType: permission, outcome: "denied" });
+      await writeAudit({ actorUserId: context.userId, actorDisplayName: context.displayName, organizationId: context.scope.organization.id, facilityId: context.scope.facility?.id, action: "access.denied", category: "authorization", resourceType: permission, outcome: "denied" });
       res.status(403).json({ error: "Forbidden" }); return;
     }
     next();

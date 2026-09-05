@@ -31,26 +31,27 @@ export const GetCurrentUserResponse = zod.object({
   "id": zod.string(),
   "name": zod.string()
 }),
-  "agency": zod.object({
+  "agency": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-}),
-  "region": zod.object({
+}),zod.null()]),
+  "region": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-}),
-  "facility": zod.object({
+}),zod.null()]),
+  "facility": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-}),
-  "program": zod.object({
+}),zod.null()]),
+  "program": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-}),
-  "cohort": zod.object({
+}),zod.null()]),
+  "cohort": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-})
+}),zod.null()]),
+  "level": zod.enum(['organization', 'agency', 'region', 'facility', 'program', 'cohort'])
 })
 })
 
@@ -66,26 +67,27 @@ export const GetDashboardResponse = zod.object({
   "id": zod.string(),
   "name": zod.string()
 }),
-  "agency": zod.object({
+  "agency": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-}),
-  "region": zod.object({
+}),zod.null()]),
+  "region": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-}),
-  "facility": zod.object({
+}),zod.null()]),
+  "facility": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-}),
-  "program": zod.object({
+}),zod.null()]),
+  "program": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-}),
-  "cohort": zod.object({
+}),zod.null()]),
+  "cohort": zod.union([zod.object({
   "id": zod.string(),
   "name": zod.string()
-})
+}),zod.null()]),
+  "level": zod.enum(['organization', 'agency', 'region', 'facility', 'program', 'cohort'])
 }),
   "metrics": zod.array(zod.object({
   "label": zod.string(),
@@ -112,6 +114,210 @@ export const GetAdminOverviewResponse = zod.object({
   "learners": zod.number(),
   "educators": zod.number(),
   "syntheticDataNotice": zod.string()
+})
+
+
+/**
+ * @summary Get the organization hierarchy visible to the administrator
+ */
+export const GetAdminHierarchyResponse = zod.object({
+  "organization": zod.object({
+  "id": zod.string(),
+  "name": zod.string()
+}),
+  "agencies": zod.array(zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "name": zod.string(),
+  "regions": zod.array(zod.object({
+  "id": zod.string(),
+  "agencyId": zod.string(),
+  "name": zod.string(),
+  "facilities": zod.array(zod.object({
+  "id": zod.string(),
+  "regionId": zod.string(),
+  "name": zod.string()
+}).and(zod.object({
+  "programs": zod.array(zod.object({
+  "id": zod.string(),
+  "facilityId": zod.string(),
+  "name": zod.string()
+}))
+})))
+}))
+}))
+})
+
+
+/**
+ * @summary Create a facility beneath an authorized region
+ */
+
+
+
+export const CreateFacilityBody = zod.object({
+  "regionId": zod.string(),
+  "name": zod.string().min(1)
+})
+
+export const CreateFacilityResponse = zod.object({
+  "id": zod.string(),
+  "regionId": zod.string(),
+  "name": zod.string()
+})
+
+
+/**
+ * @summary Update a visible facility
+ */
+export const UpdateFacilityParams = zod.object({
+  "facilityId": zod.coerce.string()
+})
+
+
+
+
+export const UpdateFacilityBody = zod.object({
+  "name": zod.string().min(1)
+})
+
+export const UpdateFacilityResponse = zod.object({
+  "id": zod.string(),
+  "regionId": zod.string(),
+  "name": zod.string()
+})
+
+
+/**
+ * @summary Create a program beneath an authorized facility
+ */
+
+
+
+export const CreateProgramBody = zod.object({
+  "facilityId": zod.string(),
+  "name": zod.string().min(1)
+})
+
+export const CreateProgramResponse = zod.object({
+  "id": zod.string(),
+  "facilityId": zod.string(),
+  "name": zod.string()
+})
+
+
+/**
+ * @summary Update a visible program
+ */
+export const UpdateProgramParams = zod.object({
+  "programId": zod.coerce.string()
+})
+
+
+
+
+export const UpdateProgramBody = zod.object({
+  "name": zod.string().min(1)
+})
+
+export const UpdateProgramResponse = zod.object({
+  "id": zod.string(),
+  "facilityId": zod.string(),
+  "name": zod.string()
+})
+
+
+/**
+ * @summary Get authorized tenant module and policy configuration
+ */
+export const getTenantConfigurationResponsePoliciesSessionTimeoutMinutesMin = 5;
+export const getTenantConfigurationResponsePoliciesSessionTimeoutMinutesMax = 480;
+export const getTenantConfigurationResponsePoliciesSessionTimeoutMinutesMultipleOf = 1;
+
+export const getTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMin = 5;
+export const getTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMax = 240;
+export const getTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMultipleOf = 1;
+
+
+
+export const GetTenantConfigurationResponse = zod.object({
+  "organizationId": zod.string(),
+  "modules": zod.object({
+  "abe": zod.boolean(),
+  "hse": zod.boolean(),
+  "specialEducation": zod.boolean(),
+  "accessibility": zod.boolean(),
+  "aiTutor": zod.boolean(),
+  "career": zod.boolean(),
+  "reentry": zod.boolean(),
+  "passport": zod.boolean(),
+  "offlineMode": zod.boolean()
+}),
+  "policies": zod.object({
+  "sessionTimeoutMinutes": zod.number().min(getTenantConfigurationResponsePoliciesSessionTimeoutMinutesMin).max(getTenantConfigurationResponsePoliciesSessionTimeoutMinutesMax).multipleOf(getTenantConfigurationResponsePoliciesSessionTimeoutMinutesMultipleOf),
+  "inactivityTimeoutMinutes": zod.number().min(getTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMin).max(getTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMax).multipleOf(getTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMultipleOf)
+})
+})
+
+
+/**
+ * @summary Update authorized tenant module and policy configuration
+ */
+export const updateTenantConfigurationBodyPoliciesSessionTimeoutMinutesMin = 5;
+export const updateTenantConfigurationBodyPoliciesSessionTimeoutMinutesMax = 480;
+export const updateTenantConfigurationBodyPoliciesSessionTimeoutMinutesMultipleOf = 1;
+
+export const updateTenantConfigurationBodyPoliciesInactivityTimeoutMinutesMin = 5;
+export const updateTenantConfigurationBodyPoliciesInactivityTimeoutMinutesMax = 240;
+export const updateTenantConfigurationBodyPoliciesInactivityTimeoutMinutesMultipleOf = 1;
+
+
+
+export const UpdateTenantConfigurationBody = zod.object({
+  "modules": zod.object({
+  "abe": zod.boolean(),
+  "hse": zod.boolean(),
+  "specialEducation": zod.boolean(),
+  "accessibility": zod.boolean(),
+  "aiTutor": zod.boolean(),
+  "career": zod.boolean(),
+  "reentry": zod.boolean(),
+  "passport": zod.boolean(),
+  "offlineMode": zod.boolean()
+}),
+  "policies": zod.object({
+  "sessionTimeoutMinutes": zod.number().min(updateTenantConfigurationBodyPoliciesSessionTimeoutMinutesMin).max(updateTenantConfigurationBodyPoliciesSessionTimeoutMinutesMax).multipleOf(updateTenantConfigurationBodyPoliciesSessionTimeoutMinutesMultipleOf),
+  "inactivityTimeoutMinutes": zod.number().min(updateTenantConfigurationBodyPoliciesInactivityTimeoutMinutesMin).max(updateTenantConfigurationBodyPoliciesInactivityTimeoutMinutesMax).multipleOf(updateTenantConfigurationBodyPoliciesInactivityTimeoutMinutesMultipleOf)
+})
+})
+
+export const updateTenantConfigurationResponsePoliciesSessionTimeoutMinutesMin = 5;
+export const updateTenantConfigurationResponsePoliciesSessionTimeoutMinutesMax = 480;
+export const updateTenantConfigurationResponsePoliciesSessionTimeoutMinutesMultipleOf = 1;
+
+export const updateTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMin = 5;
+export const updateTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMax = 240;
+export const updateTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMultipleOf = 1;
+
+
+
+export const UpdateTenantConfigurationResponse = zod.object({
+  "organizationId": zod.string(),
+  "modules": zod.object({
+  "abe": zod.boolean(),
+  "hse": zod.boolean(),
+  "specialEducation": zod.boolean(),
+  "accessibility": zod.boolean(),
+  "aiTutor": zod.boolean(),
+  "career": zod.boolean(),
+  "reentry": zod.boolean(),
+  "passport": zod.boolean(),
+  "offlineMode": zod.boolean()
+}),
+  "policies": zod.object({
+  "sessionTimeoutMinutes": zod.number().min(updateTenantConfigurationResponsePoliciesSessionTimeoutMinutesMin).max(updateTenantConfigurationResponsePoliciesSessionTimeoutMinutesMax).multipleOf(updateTenantConfigurationResponsePoliciesSessionTimeoutMinutesMultipleOf),
+  "inactivityTimeoutMinutes": zod.number().min(updateTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMin).max(updateTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMax).multipleOf(updateTenantConfigurationResponsePoliciesInactivityTimeoutMinutesMultipleOf)
+})
 })
 
 

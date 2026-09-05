@@ -18,13 +18,26 @@ export interface ScopeRef {
   name: string;
 }
 
+export type ScopeContextLevel = typeof ScopeContextLevel[keyof typeof ScopeContextLevel];
+
+
+export const ScopeContextLevel = {
+  organization: 'organization',
+  agency: 'agency',
+  region: 'region',
+  facility: 'facility',
+  program: 'program',
+  cohort: 'cohort',
+} as const;
+
 export interface ScopeContext {
   organization: ScopeRef;
-  agency: ScopeRef;
-  region: ScopeRef;
-  facility: ScopeRef;
-  program: ScopeRef;
-  cohort: ScopeRef;
+  agency: ScopeRef | null;
+  region: ScopeRef | null;
+  facility: ScopeRef | null;
+  program: ScopeRef | null;
+  cohort: ScopeRef | null;
+  level: ScopeContextLevel;
 }
 
 export interface CurrentUser {
@@ -83,6 +96,131 @@ export interface AuditEvent {
   outcome: string;
 }
 
+export interface Facility {
+  id: string;
+  regionId: string;
+  name: string;
+}
+
+export interface FacilityInput {
+  regionId: string;
+  /** @minLength 1 */
+  name: string;
+}
+
+export interface FacilityUpdate {
+  /** @minLength 1 */
+  name: string;
+}
+
+export interface Program {
+  id: string;
+  facilityId: string;
+  name: string;
+}
+
+export interface ProgramInput {
+  facilityId: string;
+  /** @minLength 1 */
+  name: string;
+}
+
+export interface ProgramUpdate {
+  /** @minLength 1 */
+  name: string;
+}
+
+export type HierarchyProgram = Program;
+
+export type HierarchyFacility = Facility & {
+  programs: HierarchyProgram[];
+};
+
+export interface HierarchyRegion {
+  id: string;
+  agencyId: string;
+  name: string;
+  facilities: HierarchyFacility[];
+}
+
+export interface HierarchyAgency {
+  id: string;
+  organizationId: string;
+  name: string;
+  regions: HierarchyRegion[];
+}
+
+export interface OrganizationHierarchy {
+  organization: ScopeRef;
+  agencies: HierarchyAgency[];
+}
+
+export type TenantConfigurationModules = {
+  abe: boolean;
+  hse: boolean;
+  specialEducation: boolean;
+  accessibility: boolean;
+  aiTutor: boolean;
+  career: boolean;
+  reentry: boolean;
+  passport: boolean;
+  offlineMode: boolean;
+};
+
+export type TenantConfigurationPolicies = {
+  /**
+     * @minimum 5
+     * @maximum 480
+     */
+  sessionTimeoutMinutes: number;
+  /**
+     * @minimum 5
+     * @maximum 240
+     */
+  inactivityTimeoutMinutes: number;
+};
+
+export interface TenantConfiguration {
+  organizationId: string;
+  modules: TenantConfigurationModules;
+  policies: TenantConfigurationPolicies;
+}
+
+export type TenantConfigurationUpdateModules = {
+  abe: boolean;
+  hse: boolean;
+  specialEducation: boolean;
+  accessibility: boolean;
+  aiTutor: boolean;
+  career: boolean;
+  reentry: boolean;
+  passport: boolean;
+  offlineMode: boolean;
+};
+
+export type TenantConfigurationUpdatePolicies = {
+  /**
+     * @minimum 5
+     * @maximum 480
+     */
+  sessionTimeoutMinutes: number;
+  /**
+     * @minimum 5
+     * @maximum 240
+     */
+  inactivityTimeoutMinutes: number;
+};
+
+export interface TenantConfigurationUpdate {
+  modules: TenantConfigurationUpdateModules;
+  policies: TenantConfigurationUpdatePolicies;
+}
+
+/**
+ * Request validation failed
+ */
+export type BadRequestResponse = Error;
+
 /**
  * Authentication is required
  */
@@ -92,6 +230,11 @@ export type UnauthorizedResponse = Error;
  * The authenticated user is not authorized for this scope
  */
 export type ForbiddenResponse = Error;
+
+/**
+ * Resource not found in the authorized scope
+ */
+export type NotFoundResponse = Error;
 
 export type ListAuditEventsParams = {
 /**

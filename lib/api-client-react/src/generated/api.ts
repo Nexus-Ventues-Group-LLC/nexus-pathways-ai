@@ -6,11 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
@@ -18,16 +22,27 @@ import type {
 import type {
   AdminOverview,
   AuditEvent,
+  BadRequestResponse,
   CurrentUser,
   Dashboard,
+  Facility,
+  FacilityInput,
+  FacilityUpdate,
   ForbiddenResponse,
   HealthStatus,
   ListAuditEventsParams,
+  NotFoundResponse,
+  OrganizationHierarchy,
+  Program,
+  ProgramInput,
+  ProgramUpdate,
+  TenantConfiguration,
+  TenantConfigurationUpdate,
   UnauthorizedResponse
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -361,6 +376,517 @@ export function useGetAdminOverview<TData = Awaited<ReturnType<typeof getAdminOv
 
 
 
+
+export const getGetAdminHierarchyUrl = () => {
+
+
+
+
+  return `/api/admin/hierarchy`
+}
+
+/**
+ * @summary Get the organization hierarchy visible to the administrator
+ */
+export const getAdminHierarchy = async ( options?: Parameters<typeof customFetch>[1]): Promise<OrganizationHierarchy> => {
+
+  return customFetch<OrganizationHierarchy>(getGetAdminHierarchyUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminHierarchyQueryKey = () => {
+    return [
+    `/api/admin/hierarchy`
+    ] as const;
+    }
+
+
+export const getGetAdminHierarchyQueryOptions = <TData = Awaited<ReturnType<typeof getAdminHierarchy>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminHierarchy>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminHierarchyQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminHierarchy>>> = ({ signal }) => getAdminHierarchy({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminHierarchy>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminHierarchyQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminHierarchy>>>
+export type GetAdminHierarchyQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+
+
+/**
+ * @summary Get the organization hierarchy visible to the administrator
+ */
+
+export function useGetAdminHierarchy<TData = Awaited<ReturnType<typeof getAdminHierarchy>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminHierarchy>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminHierarchyQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateFacilityUrl = () => {
+
+
+
+
+  return `/api/admin/facilities`
+}
+
+/**
+ * @summary Create a facility beneath an authorized region
+ */
+export const createFacility = async (facilityInput: FacilityInput, options?: Parameters<typeof customFetch>[1]): Promise<Facility> => {
+
+  return customFetch<Facility>(getCreateFacilityUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(facilityInput)
+  }
+);}
+
+
+
+
+
+export const getCreateFacilityMutationOptions = <TError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createFacility>>, TError,{data: BodyType<FacilityInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createFacility>>, TError,{data: BodyType<FacilityInput>}, TContext> => {
+
+const mutationKey = ['createFacility'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createFacility>>, {data: BodyType<FacilityInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createFacility(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateFacilityMutationResult = NonNullable<Awaited<ReturnType<typeof createFacility>>>
+    export type CreateFacilityMutationBody = BodyType<FacilityInput>
+    export type CreateFacilityMutationError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Create a facility beneath an authorized region
+ */
+export const useCreateFacility = <TError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createFacility>>, TError,{data: BodyType<FacilityInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createFacility>>,
+        TError,
+        {data: BodyType<FacilityInput>},
+        TContext
+      > => {
+      return useMutation(getCreateFacilityMutationOptions(options));
+    }
+
+export const getUpdateFacilityUrl = (facilityId: string,) => {
+
+
+
+
+  return `/api/admin/facilities/${facilityId}`
+}
+
+/**
+ * @summary Update a visible facility
+ */
+export const updateFacility = async (facilityId: string,
+    facilityUpdate: FacilityUpdate, options?: Parameters<typeof customFetch>[1]): Promise<Facility> => {
+
+  return customFetch<Facility>(getUpdateFacilityUrl(facilityId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(facilityUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateFacilityMutationOptions = <TError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateFacility>>, TError,{facilityId: string;data: BodyType<FacilityUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateFacility>>, TError,{facilityId: string;data: BodyType<FacilityUpdate>}, TContext> => {
+
+const mutationKey = ['updateFacility'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateFacility>>, {facilityId: string;data: BodyType<FacilityUpdate>}> = (props) => {
+          const {facilityId,data} = props ?? {};
+
+          return  updateFacility(facilityId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateFacilityMutationResult = NonNullable<Awaited<ReturnType<typeof updateFacility>>>
+    export type UpdateFacilityMutationBody = BodyType<FacilityUpdate>
+    export type UpdateFacilityMutationError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Update a visible facility
+ */
+export const useUpdateFacility = <TError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateFacility>>, TError,{facilityId: string;data: BodyType<FacilityUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateFacility>>,
+        TError,
+        {facilityId: string;data: BodyType<FacilityUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateFacilityMutationOptions(options));
+    }
+
+export const getCreateProgramUrl = () => {
+
+
+
+
+  return `/api/admin/programs`
+}
+
+/**
+ * @summary Create a program beneath an authorized facility
+ */
+export const createProgram = async (programInput: ProgramInput, options?: Parameters<typeof customFetch>[1]): Promise<Program> => {
+
+  return customFetch<Program>(getCreateProgramUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(programInput)
+  }
+);}
+
+
+
+
+
+export const getCreateProgramMutationOptions = <TError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProgram>>, TError,{data: BodyType<ProgramInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createProgram>>, TError,{data: BodyType<ProgramInput>}, TContext> => {
+
+const mutationKey = ['createProgram'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createProgram>>, {data: BodyType<ProgramInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createProgram(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateProgramMutationResult = NonNullable<Awaited<ReturnType<typeof createProgram>>>
+    export type CreateProgramMutationBody = BodyType<ProgramInput>
+    export type CreateProgramMutationError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Create a program beneath an authorized facility
+ */
+export const useCreateProgram = <TError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createProgram>>, TError,{data: BodyType<ProgramInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createProgram>>,
+        TError,
+        {data: BodyType<ProgramInput>},
+        TContext
+      > => {
+      return useMutation(getCreateProgramMutationOptions(options));
+    }
+
+export const getUpdateProgramUrl = (programId: string,) => {
+
+
+
+
+  return `/api/admin/programs/${programId}`
+}
+
+/**
+ * @summary Update a visible program
+ */
+export const updateProgram = async (programId: string,
+    programUpdate: ProgramUpdate, options?: Parameters<typeof customFetch>[1]): Promise<Program> => {
+
+  return customFetch<Program>(getUpdateProgramUrl(programId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(programUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateProgramMutationOptions = <TError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProgram>>, TError,{programId: string;data: BodyType<ProgramUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateProgram>>, TError,{programId: string;data: BodyType<ProgramUpdate>}, TContext> => {
+
+const mutationKey = ['updateProgram'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateProgram>>, {programId: string;data: BodyType<ProgramUpdate>}> = (props) => {
+          const {programId,data} = props ?? {};
+
+          return  updateProgram(programId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateProgramMutationResult = NonNullable<Awaited<ReturnType<typeof updateProgram>>>
+    export type UpdateProgramMutationBody = BodyType<ProgramUpdate>
+    export type UpdateProgramMutationError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Update a visible program
+ */
+export const useUpdateProgram = <TError = ErrorType<BadRequestResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateProgram>>, TError,{programId: string;data: BodyType<ProgramUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateProgram>>,
+        TError,
+        {programId: string;data: BodyType<ProgramUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateProgramMutationOptions(options));
+    }
+
+export const getGetTenantConfigurationUrl = () => {
+
+
+
+
+  return `/api/admin/tenant-configuration`
+}
+
+/**
+ * @summary Get authorized tenant module and policy configuration
+ */
+export const getTenantConfiguration = async ( options?: Parameters<typeof customFetch>[1]): Promise<TenantConfiguration> => {
+
+  return customFetch<TenantConfiguration>(getGetTenantConfigurationUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTenantConfigurationQueryKey = () => {
+    return [
+    `/api/admin/tenant-configuration`
+    ] as const;
+    }
+
+
+export const getGetTenantConfigurationQueryOptions = <TData = Awaited<ReturnType<typeof getTenantConfiguration>>, TError = ErrorType<ForbiddenResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTenantConfiguration>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTenantConfigurationQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTenantConfiguration>>> = ({ signal }) => getTenantConfiguration({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTenantConfiguration>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTenantConfigurationQueryResult = NonNullable<Awaited<ReturnType<typeof getTenantConfiguration>>>
+export type GetTenantConfigurationQueryError = ErrorType<ForbiddenResponse>
+
+
+/**
+ * @summary Get authorized tenant module and policy configuration
+ */
+
+export function useGetTenantConfiguration<TData = Awaited<ReturnType<typeof getTenantConfiguration>>, TError = ErrorType<ForbiddenResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTenantConfiguration>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTenantConfigurationQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateTenantConfigurationUrl = () => {
+
+
+
+
+  return `/api/admin/tenant-configuration`
+}
+
+/**
+ * @summary Update authorized tenant module and policy configuration
+ */
+export const updateTenantConfiguration = async (tenantConfigurationUpdate: TenantConfigurationUpdate, options?: Parameters<typeof customFetch>[1]): Promise<TenantConfiguration> => {
+
+  return customFetch<TenantConfiguration>(getUpdateTenantConfigurationUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(tenantConfigurationUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateTenantConfigurationMutationOptions = <TError = ErrorType<BadRequestResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTenantConfiguration>>, TError,{data: BodyType<TenantConfigurationUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateTenantConfiguration>>, TError,{data: BodyType<TenantConfigurationUpdate>}, TContext> => {
+
+const mutationKey = ['updateTenantConfiguration'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateTenantConfiguration>>, {data: BodyType<TenantConfigurationUpdate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateTenantConfiguration(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateTenantConfigurationMutationResult = NonNullable<Awaited<ReturnType<typeof updateTenantConfiguration>>>
+    export type UpdateTenantConfigurationMutationBody = BodyType<TenantConfigurationUpdate>
+    export type UpdateTenantConfigurationMutationError = ErrorType<BadRequestResponse | ForbiddenResponse>
+
+    /**
+ * @summary Update authorized tenant module and policy configuration
+ */
+export const useUpdateTenantConfiguration = <TError = ErrorType<BadRequestResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTenantConfiguration>>, TError,{data: BodyType<TenantConfigurationUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateTenantConfiguration>>,
+        TError,
+        {data: BodyType<TenantConfigurationUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateTenantConfigurationMutationOptions(options));
+    }
 
 export const getListAuditEventsUrl = (params?: ListAuditEventsParams,) => {
   const normalizedParams = new URLSearchParams();
