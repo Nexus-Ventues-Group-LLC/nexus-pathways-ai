@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { auditDraft, authenticationOutcome, canCreateFacility, isInScope, permissionOutcome } from "./security-policy";
 
-const admin = ["admin.overview", "audit.read"];
-const educator = ["portal.read"];
+const admin = ["admin.overview", "audit.read", "curriculum.manage"];
+const educator = ["portal.read", "curriculum.manage"];
 const learner = ["portal.read"];
 
 describe("Phase 1 security policy", () => {
@@ -25,6 +25,12 @@ describe("Phase 1 security policy", () => {
       expect(permissionOutcome(permissions, "admin.overview")).toBe(403);
       expect(permissionOutcome(permissions, "audit.read")).toBe(403);
     }
+  });
+
+  it("allows authorized staff, but not learners, to manage curriculum", () => {
+    expect(permissionOutcome(admin, "curriculum.manage")).toBe(200);
+    expect(permissionOutcome(educator, "curriculum.manage")).toBe(200);
+    expect(permissionOutcome(learner, "curriculum.manage")).toBe(403);
   });
 
   it("enforces both organization and facility scope predicates", () => {

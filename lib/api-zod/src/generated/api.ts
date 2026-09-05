@@ -414,6 +414,69 @@ export const CompleteLearnerCourseworkResponse = zod.object({
 
 
 /**
+ * @summary Get a published course actively assigned to the learner's cohort
+ */
+export const GetLearnerCourseParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+export const GetLearnerCourseResponse = zod.object({
+  "course": zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "currentVersion": zod.number(),
+  "publishedAt": zod.coerce.date().nullable()
+}),
+  "subjects": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "modules": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "units": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "lessons": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "activities": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "position": zod.number(),
+  "instructionalMinutes": zod.number()
+})),
+  "assessments": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "instructions": zod.string(),
+  "position": zod.number(),
+  "skills": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number()
+}))
+}))
+}))
+}))
+}))
+}))
+})
+
+
+/**
  * @summary Update the authenticated learner's learning goals
  */
 export const updateLearnerGoalsBodyGoalsItemMax = 280;
@@ -461,5 +524,323 @@ export const RecordLearnerActivityResponse = zod.object({
   "sessionTimeoutMinutes": zod.number(),
   "inactivityTimeoutMinutes": zod.number()
 })
+
+
+export const ListCoursesResponseItem = zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "currentVersion": zod.number(),
+  "publishedAt": zod.coerce.date().nullable()
+})
+export const ListCoursesResponse = zod.array(ListCoursesResponseItem)
+
+
+
+
+
+export const CreateCourseBody = zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().optional()
+})
+
+export const CreateCourseResponse = zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "currentVersion": zod.number(),
+  "publishedAt": zod.coerce.date().nullable()
+})
+
+
+export const GetCourseParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+export const GetCourseResponse = zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "currentVersion": zod.number(),
+  "publishedAt": zod.coerce.date().nullable()
+})
+
+
+export const UpdateCourseParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+
+
+
+export const UpdateCourseBody = zod.object({
+  "title": zod.string().min(1).optional(),
+  "description": zod.string().optional()
+})
+
+export const UpdateCourseResponse = zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "currentVersion": zod.number(),
+  "publishedAt": zod.coerce.date().nullable()
+})
+
+
+export const TransitionCourseLifecycleParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+export const transitionCourseLifecycleBodyChangeNoteMax = 1000;
+
+
+
+export const TransitionCourseLifecycleBody = zod.object({
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "changeNote": zod.string().max(transitionCourseLifecycleBodyChangeNoteMax).optional()
+})
+
+export const TransitionCourseLifecycleResponse = zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "currentVersion": zod.number(),
+  "publishedAt": zod.coerce.date().nullable()
+})
+
+
+export const ListCourseAssignmentsParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+export const ListCourseAssignmentsResponseItem = zod.object({
+  "id": zod.string(),
+  "courseId": zod.string(),
+  "cohortId": zod.string(),
+  "assignedAt": zod.coerce.date(),
+  "unassignedAt": zod.coerce.date().nullable()
+})
+export const ListCourseAssignmentsResponse = zod.array(ListCourseAssignmentsResponseItem)
+
+
+export const AssignCourseToCohortParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+export const AssignCourseToCohortBody = zod.object({
+  "cohortId": zod.string(),
+  "assigned": zod.boolean()
+})
+
+export const AssignCourseToCohortResponse = zod.object({
+  "id": zod.string(),
+  "courseId": zod.string(),
+  "cohortId": zod.string(),
+  "assignedAt": zod.coerce.date(),
+  "unassignedAt": zod.coerce.date().nullable()
+})
+
+
+export const ListCourseVersionsParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+export const ListCourseVersionsResponseItem = zod.object({
+  "id": zod.string(),
+  "version": zod.number(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "changeNote": zod.string().nullable(),
+  "createdAt": zod.coerce.date()
+})
+export const ListCourseVersionsResponse = zod.array(ListCourseVersionsResponseItem)
+
+
+export const GetCourseStructureParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+export const GetCourseStructureResponse = zod.object({
+  "course": zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "currentVersion": zod.number(),
+  "publishedAt": zod.coerce.date().nullable()
+}),
+  "subjects": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "modules": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "units": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "lessons": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "activities": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "position": zod.number(),
+  "instructionalMinutes": zod.number()
+})),
+  "assessments": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "instructions": zod.string(),
+  "position": zod.number(),
+  "skills": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number()
+}))
+}))
+}))
+}))
+}))
+}))
+})
+
+
+export const ReplaceCourseStructureParams = zod.object({
+  "courseId": zod.coerce.string()
+})
+
+
+
+
+
+
+export const replaceCourseStructureBodySubjectsItemModulesItemUnitsItemLessonsItemActivitiesItemInstructionalMinutesMin = 0;
+
+
+
+
+
+export const ReplaceCourseStructureBody = zod.object({
+  "subjects": zod.array(zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().optional(),
+  "position": zod.number().optional(),
+  "modules": zod.array(zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().optional(),
+  "position": zod.number().optional(),
+  "units": zod.array(zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().optional(),
+  "position": zod.number().optional(),
+  "lessons": zod.array(zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().optional(),
+  "position": zod.number().optional(),
+  "activities": zod.array(zod.object({
+  "title": zod.string().min(1),
+  "content": zod.string(),
+  "position": zod.number().optional(),
+  "instructionalMinutes": zod.number().min(replaceCourseStructureBodySubjectsItemModulesItemUnitsItemLessonsItemActivitiesItemInstructionalMinutesMin).optional()
+})),
+  "assessments": zod.array(zod.object({
+  "title": zod.string().min(1),
+  "instructions": zod.string().optional(),
+  "position": zod.number().optional(),
+  "skills": zod.array(zod.object({
+  "title": zod.string().min(1),
+  "description": zod.string().optional(),
+  "position": zod.number().optional()
+}))
+}))
+}))
+}))
+}))
+}))
+})
+
+export const ReplaceCourseStructureResponse = zod.object({
+  "course": zod.object({
+  "id": zod.string(),
+  "organizationId": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "lifecycle": zod.enum(['draft', 'review', 'approved', 'published', 'retired']),
+  "currentVersion": zod.number(),
+  "publishedAt": zod.coerce.date().nullable()
+}),
+  "subjects": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "modules": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "units": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "lessons": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number(),
+  "activities": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "content": zod.string(),
+  "position": zod.number(),
+  "instructionalMinutes": zod.number()
+})),
+  "assessments": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "instructions": zod.string(),
+  "position": zod.number(),
+  "skills": zod.array(zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "position": zod.number()
+}))
+}))
+}))
+}))
+}))
+}))
+})
+
+
+export const ListEligibleCurriculumCohortsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "programId": zod.string(),
+  "programName": zod.string()
+})
+export const ListEligibleCurriculumCohortsResponse = zod.array(ListEligibleCurriculumCohortsResponseItem)
 
 

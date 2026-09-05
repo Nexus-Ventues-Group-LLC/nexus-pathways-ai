@@ -18,6 +18,8 @@ tags:
     description: Security audit events
   - name: learner
     description: Learner-owned learning experience
+  - name: curriculum
+    description: Tenant-scoped curriculum authoring, publication, and assignment
 paths:
   /healthz:
     get:
@@ -311,6 +313,24 @@ paths:
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
+  /learner/courses/{courseId}:
+    get:
+      operationId: getLearnerCourse
+      tags: [learner]
+      summary: Get a published course actively assigned to the learner's cohort
+      security:
+        - clerkSession: []
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Published assigned course structure
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CourseStructure" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /learner/goals:
     patch:
       operationId: updateLearnerGoals
@@ -368,6 +388,108 @@ paths:
               schema: { $ref: "#/components/schemas/LearnerActivity" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/courses:
+    get:
+      operationId: listCourses
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      responses:
+        "200": { description: Tenant courses, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/Course" } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      operationId: createCourse
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseInput" } } } }
+      responses:
+        "201": { description: Created course, content: { application/json: { schema: { $ref: "#/components/schemas/Course" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/courses/{courseId}:
+    get:
+      operationId: getCourse
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/CourseId" }]
+      responses:
+        "200": { description: Course hierarchy, content: { application/json: { schema: { $ref: "#/components/schemas/Course" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: updateCourse
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/CourseId" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseUpdate" } } } }
+      responses:
+        "200": { description: Updated course, content: { application/json: { schema: { $ref: "#/components/schemas/Course" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/courses/{courseId}/lifecycle:
+    post:
+      operationId: transitionCourseLifecycle
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/CourseId" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseLifecycleInput" } } } }
+      responses:
+        "200": { description: Transitioned course, content: { application/json: { schema: { $ref: "#/components/schemas/Course" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/courses/{courseId}/assignments:
+    get:
+      operationId: listCourseAssignments
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/CourseId" }]
+      responses:
+        "200": { description: Course assignments, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/CourseAssignment" } } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: assignCourseToCohort
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/CourseId" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseAssignmentInput" } } } }
+      responses:
+        "200": { description: Course assignment, content: { application/json: { schema: { $ref: "#/components/schemas/CourseAssignment" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/courses/{courseId}/versions:
+    get:
+      operationId: listCourseVersions
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/CourseId" }]
+      responses:
+        "200": { description: Course versions, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/CourseVersion" } } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/courses/{courseId}/structure:
+    get:
+      operationId: getCourseStructure
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/CourseId" }]
+      responses:
+        "200": { description: Complete course tree, content: { application/json: { schema: { $ref: "#/components/schemas/CourseStructure" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      operationId: replaceCourseStructure
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/CourseId" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/CourseStructureInput" } } } }
+      responses:
+        "200": { description: Replaced course tree, content: { application/json: { schema: { $ref: "#/components/schemas/CourseStructure" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/curriculum-cohorts:
+    get:
+      operationId: listEligibleCurriculumCohorts
+      tags: [curriculum]
+      security: [{ clerkSession: [] }]
+      responses:
+        "200": { description: Cohorts eligible for assignment, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/CurriculumCohort" } } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
 components:
   securitySchemes:
     clerkSession:
@@ -413,6 +535,11 @@ components:
       schema: { type: string }
     CourseworkId:
       name: courseworkId
+      in: path
+      required: true
+      schema: { type: string }
+    CourseId:
+      name: courseId
       in: path
       required: true
       schema: { type: string }
@@ -744,4 +871,154 @@ components:
         instructionalHoursCompleted: { type: number, minimum: 0 }
         activity: { $ref: "#/components/schemas/LearnerActivity" }
       required: [coursework, goals, presentationPreferences, resources, instructionalHoursCompleted, activity]
+    Course:
+      type: object
+      properties:
+        id: { type: string }
+        organizationId: { type: string }
+        title: { type: string }
+        description: { type: string }
+        lifecycle: { type: string, enum: [draft, review, approved, published, retired] }
+        currentVersion: { type: number }
+        publishedAt: { type: ["string", "null"], format: date-time }
+      required: [id, organizationId, title, description, lifecycle, currentVersion, publishedAt]
+    CourseInput:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, description: { type: string } }
+      required: [title]
+    CourseUpdate:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, description: { type: string } }
+    CourseLifecycleInput:
+      type: object
+      additionalProperties: false
+      properties:
+        lifecycle: { type: string, enum: [draft, review, approved, published, retired] }
+        changeNote: { type: string, maxLength: 1000 }
+      required: [lifecycle]
+    CourseAssignmentInput:
+      type: object
+      additionalProperties: false
+      properties: { cohortId: { type: string }, assigned: { type: boolean } }
+      required: [cohortId, assigned]
+    CourseAssignment:
+      type: object
+      properties:
+        id: { type: string }
+        courseId: { type: string }
+        cohortId: { type: string }
+        assignedAt: { type: string, format: date-time }
+        unassignedAt: { type: ["string", "null"], format: date-time }
+      required: [id, courseId, cohortId, assignedAt, unassignedAt]
+    CourseVersion:
+      type: object
+      properties:
+        id: { type: string }
+        version: { type: number }
+        lifecycle: { type: string, enum: [draft, review, approved, published, retired] }
+        changeNote: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+      required: [id, version, lifecycle, changeNote, createdAt]
+    CurriculumCohort:
+      type: object
+      properties: { id: { type: string }, name: { type: string }, programId: { type: string }, programName: { type: string } }
+      required: [id, name, programId, programName]
+    CourseStructure:
+      type: object
+      properties:
+        course: { $ref: "#/components/schemas/Course" }
+        subjects: { type: array, items: { $ref: "#/components/schemas/Subject" } }
+      required: [course, subjects]
+    Subject:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        position: { type: number }
+        modules: { type: array, items: { $ref: "#/components/schemas/Module" } }
+      required: [id, title, description, position, modules]
+    Module:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        position: { type: number }
+        units: { type: array, items: { $ref: "#/components/schemas/Unit" } }
+      required: [id, title, description, position, units]
+    Unit:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        position: { type: number }
+        lessons: { type: array, items: { $ref: "#/components/schemas/Lesson" } }
+      required: [id, title, description, position, lessons]
+    Lesson:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        position: { type: number }
+        activities: { type: array, items: { $ref: "#/components/schemas/Activity" } }
+        assessments: { type: array, items: { $ref: "#/components/schemas/Assessment" } }
+      required: [id, title, description, position, activities, assessments]
+    Activity:
+      type: object
+      properties: { id: { type: string }, title: { type: string }, content: { type: string }, position: { type: number }, instructionalMinutes: { type: number } }
+      required: [id, title, content, position, instructionalMinutes]
+    Assessment:
+      type: object
+      properties: { id: { type: string }, title: { type: string }, instructions: { type: string }, position: { type: number }, skills: { type: array, items: { $ref: "#/components/schemas/Skill" } } }
+      required: [id, title, instructions, position, skills]
+    Skill:
+      type: object
+      properties: { id: { type: string }, title: { type: string }, description: { type: string }, position: { type: number } }
+      required: [id, title, description, position]
+    CourseStructureInput:
+      type: object
+      additionalProperties: false
+      properties:
+        subjects: { type: array, items: { $ref: "#/components/schemas/SubjectInput" } }
+      required: [subjects]
+    SubjectInput:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, description: { type: string }, position: { type: number }, modules: { type: array, items: { $ref: "#/components/schemas/ModuleInput" } } }
+      required: [title, modules]
+    ModuleInput:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, description: { type: string }, position: { type: number }, units: { type: array, items: { $ref: "#/components/schemas/UnitInput" } } }
+      required: [title, units]
+    UnitInput:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, description: { type: string }, position: { type: number }, lessons: { type: array, items: { $ref: "#/components/schemas/LessonInput" } } }
+      required: [title, lessons]
+    LessonInput:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, description: { type: string }, position: { type: number }, activities: { type: array, items: { $ref: "#/components/schemas/ActivityInput" } }, assessments: { type: array, items: { $ref: "#/components/schemas/AssessmentInput" } } }
+      required: [title, activities, assessments]
+    ActivityInput:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, content: { type: string }, position: { type: number }, instructionalMinutes: { type: number, minimum: 0 } }
+      required: [title, content]
+    AssessmentInput:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, instructions: { type: string }, position: { type: number }, skills: { type: array, items: { $ref: "#/components/schemas/SkillInput" } } }
+      required: [title, skills]
+    SkillInput:
+      type: object
+      additionalProperties: false
+      properties: { title: { type: string, minLength: 1 }, description: { type: string }, position: { type: number } }
+      required: [title]
 

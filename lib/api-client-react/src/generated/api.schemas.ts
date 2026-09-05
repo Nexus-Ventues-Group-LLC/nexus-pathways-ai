@@ -308,6 +308,220 @@ export interface LearnerHome {
   activity: LearnerActivity;
 }
 
+export type CourseLifecycle = typeof CourseLifecycle[keyof typeof CourseLifecycle];
+
+
+export const CourseLifecycle = {
+  draft: 'draft',
+  review: 'review',
+  approved: 'approved',
+  published: 'published',
+  retired: 'retired',
+} as const;
+
+export interface Course {
+  id: string;
+  organizationId: string;
+  title: string;
+  description: string;
+  lifecycle: CourseLifecycle;
+  currentVersion: number;
+  /** @nullable */
+  publishedAt: string | null;
+}
+
+export interface CourseInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+}
+
+export interface CourseUpdate {
+  /** @minLength 1 */
+  title?: string;
+  description?: string;
+}
+
+export type CourseLifecycleInputLifecycle = typeof CourseLifecycleInputLifecycle[keyof typeof CourseLifecycleInputLifecycle];
+
+
+export const CourseLifecycleInputLifecycle = {
+  draft: 'draft',
+  review: 'review',
+  approved: 'approved',
+  published: 'published',
+  retired: 'retired',
+} as const;
+
+export interface CourseLifecycleInput {
+  lifecycle: CourseLifecycleInputLifecycle;
+  /** @maxLength 1000 */
+  changeNote?: string;
+}
+
+export interface CourseAssignmentInput {
+  cohortId: string;
+  assigned: boolean;
+}
+
+export interface CourseAssignment {
+  id: string;
+  courseId: string;
+  cohortId: string;
+  assignedAt: string;
+  /** @nullable */
+  unassignedAt: string | null;
+}
+
+export type CourseVersionLifecycle = typeof CourseVersionLifecycle[keyof typeof CourseVersionLifecycle];
+
+
+export const CourseVersionLifecycle = {
+  draft: 'draft',
+  review: 'review',
+  approved: 'approved',
+  published: 'published',
+  retired: 'retired',
+} as const;
+
+export interface CourseVersion {
+  id: string;
+  version: number;
+  lifecycle: CourseVersionLifecycle;
+  /** @nullable */
+  changeNote: string | null;
+  createdAt: string;
+}
+
+export interface CurriculumCohort {
+  id: string;
+  name: string;
+  programId: string;
+  programName: string;
+}
+
+export interface Activity {
+  id: string;
+  title: string;
+  content: string;
+  position: number;
+  instructionalMinutes: number;
+}
+
+export interface Skill {
+  id: string;
+  title: string;
+  description: string;
+  position: number;
+}
+
+export interface Assessment {
+  id: string;
+  title: string;
+  instructions: string;
+  position: number;
+  skills: Skill[];
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  position: number;
+  activities: Activity[];
+  assessments: Assessment[];
+}
+
+export interface Unit {
+  id: string;
+  title: string;
+  description: string;
+  position: number;
+  lessons: Lesson[];
+}
+
+export interface Module {
+  id: string;
+  title: string;
+  description: string;
+  position: number;
+  units: Unit[];
+}
+
+export interface Subject {
+  id: string;
+  title: string;
+  description: string;
+  position: number;
+  modules: Module[];
+}
+
+export interface CourseStructure {
+  course: Course;
+  subjects: Subject[];
+}
+
+export interface ActivityInput {
+  /** @minLength 1 */
+  title: string;
+  content: string;
+  position?: number;
+  /** @minimum 0 */
+  instructionalMinutes?: number;
+}
+
+export interface SkillInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  position?: number;
+}
+
+export interface AssessmentInput {
+  /** @minLength 1 */
+  title: string;
+  instructions?: string;
+  position?: number;
+  skills: SkillInput[];
+}
+
+export interface LessonInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  position?: number;
+  activities: ActivityInput[];
+  assessments: AssessmentInput[];
+}
+
+export interface UnitInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  position?: number;
+  lessons: LessonInput[];
+}
+
+export interface ModuleInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  position?: number;
+  units: UnitInput[];
+}
+
+export interface SubjectInput {
+  /** @minLength 1 */
+  title: string;
+  description?: string;
+  position?: number;
+  modules: ModuleInput[];
+}
+
+export interface CourseStructureInput {
+  subjects: SubjectInput[];
+}
+
 /**
  * Request validation failed
  */

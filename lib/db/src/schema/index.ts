@@ -19,3 +19,4 @@
 
 export * from "./phase1";
 export * from "./learner";
+export * from "./curriculum";

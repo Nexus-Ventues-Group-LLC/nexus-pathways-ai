@@ -1,15 +1,26 @@
 import { Router, type IRouter } from "express";
 import {
-  CompleteLearnerCourseworkParams, CompleteLearnerCourseworkResponse, GetLearnerHomeResponse,
+  CompleteLearnerCourseworkParams, CompleteLearnerCourseworkResponse, GetLearnerCourseParams, GetLearnerCourseResponse, GetLearnerHomeResponse,
   RecordLearnerActivityResponse, UpdateLearnerGoalsBody, UpdateLearnerGoalsResponse,
   UpdateLearnerPresentationPreferencesBody, UpdateLearnerPresentationPreferencesResponse,
 } from "@workspace/api-zod";
 import { requireLearner, requirePortalAuth } from "../middlewares/auth";
 import { completeCoursework, learnerHome, recordActivity, updateGoals, updatePreferences } from "../lib/learner";
+import { CurriculumError, learnerCourseStructure } from "../lib/curriculum";
 
 const router: IRouter = Router();
 router.get("/learner/home", requirePortalAuth, requireLearner, async (req, res): Promise<void> => {
   res.json(GetLearnerHomeResponse.parse(await learnerHome(req.portalContext!)));
+});
+router.get("/learner/courses/:courseId", requirePortalAuth, requireLearner, async (req, res): Promise<void> => {
+  const params = GetLearnerCourseParams.safeParse(req.params);
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
+  try {
+    res.json(GetLearnerCourseResponse.parse(await learnerCourseStructure(req.portalContext!, params.data.courseId)));
+  } catch (error) {
+    if (error instanceof CurriculumError && error.kind === "not-found") { res.status(404).json({ error: "Course not found" }); return; }
+    throw error;
+  }
 });
 router.post("/learner/coursework/:courseworkId/complete", requirePortalAuth, requireLearner, async (req, res): Promise<void> => {
   const params = CompleteLearnerCourseworkParams.safeParse(req.params);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useGetLearnerHome, useCompleteLearnerCoursework, useUpdateLearnerGoals, getGetLearnerHomeQueryKey } from '@workspace/api-client-react';
+import { Link } from 'wouter';
+import { useGetLearnerHome, useUpdateLearnerGoals, getGetLearnerHomeQueryKey } from '@workspace/api-client-react';
 import type { LearnerCoursework, LearnerHome } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -121,27 +122,10 @@ function GoalsWidget({ goals }: { goals: string[] }) {
 }
 
 function CourseworkItem({ item }: { item: LearnerCoursework }) {
-  const { mutate: completeCoursework, isPending } = useCompleteLearnerCoursework();
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  const handleComplete = () => {
-    completeCoursework({ courseworkId: item.id }, {
-      onSuccess: () => {
-        toast({ title: 'Coursework marked as completed!' });
-        // Invalidate to refresh the total instructional hours and list
-        queryClient.invalidateQueries({ queryKey: getGetLearnerHomeQueryKey() });
-      },
-      onError: () => {
-        toast({ title: 'Failed to complete coursework', variant: 'destructive' });
-      }
-    });
-  };
-
   const isCompleted = item.status === 'completed';
 
   return (
-    <div className={`p-4 rounded-lg border flex flex-col gap-3 transition-colors ${isCompleted ? 'bg-muted/30 border-border/30' : 'bg-card border-border shadow-sm'}`}>
+    <div className={`p-4 rounded-lg border flex flex-col gap-3 transition-colors hover-elevate ${isCompleted ? 'bg-muted/30 border-border/30' : 'bg-card border-border shadow-sm'}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
           <h4 className={`font-medium ${isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
@@ -159,21 +143,28 @@ function CourseworkItem({ item }: { item: LearnerCoursework }) {
 
       <div className="flex items-center justify-end mt-2">
         {isCompleted ? (
-          <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-500 font-medium bg-emerald-500/10 px-3 py-1.5 rounded-full">
-            <CheckCircle2 className="h-4 w-4" />
-            Completed
+          <div className="flex items-center gap-4">
+            <Link href={`/learner/courses/${item.id}`}>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <BookOpen className="h-4 w-4 mr-2" />
+                Review Course
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-500 font-medium bg-emerald-500/10 px-3 py-1.5 rounded-full">
+              <CheckCircle2 className="h-4 w-4" />
+              Completed
+            </div>
           </div>
         ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleComplete}
-            disabled={isPending}
-            className="hover:bg-primary hover:text-primary-foreground transition-colors"
-          >
-            {isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Circle className="h-4 w-4 mr-2" />}
-            Mark Complete
-          </Button>
+          <Link href={`/learner/courses/${item.id}`}>
+            <Button
+              className="gap-2"
+              size="sm"
+            >
+              <Target className="h-4 w-4" />
+              Open Course
+            </Button>
+          </Link>
         )}
       </div>
     </div>

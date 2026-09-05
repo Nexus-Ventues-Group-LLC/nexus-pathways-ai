@@ -3,6 +3,7 @@ import healthRouter from "./health";
 import portalRouter from "./portal";
 import administrationRouter from "./administration";
 import learnerRouter from "./learner";
+import curriculumRouter from "./curriculum";
 
 const router: IRouter = Router();
 
@@ -10,5 +11,6 @@ router.use(healthRouter);
 router.use(portalRouter);
 router.use(administrationRouter);
 router.use(learnerRouter);
+router.use(curriculumRouter);
 
 export default router;

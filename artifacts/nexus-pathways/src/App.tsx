@@ -13,7 +13,10 @@ import LearnerPortal from '@/pages/learner-portal';
 import LearnerResources from '@/pages/learner/resources';
 import LearnerAccessibility from '@/pages/learner/accessibility';
 import LearnerResourceDetail from '@/pages/learner/resource-detail';
+import LearnerCourseReader from '@/pages/learner/courses/reader';
 import EducatorPortal from '@/pages/educator-portal';
+import EducatorProgramsList from '@/pages/educator/programs/list';
+import EducatorProgramDetail from '@/pages/educator/programs/detail';
 import AdminPortal from '@/pages/administrator/overview';
 import AdminFacilities from '@/pages/administrator/facilities';
 import AdminPrograms from '@/pages/administrator/programs';
@@ -54,6 +57,7 @@ function Router() {
                   <Route path="/" component={LearnerPortal} />
                   <Route path="/resources" component={LearnerResources} />
                   <Route path="/resources/:slug" component={LearnerResourceDetail} />
+                  <Route path="/courses/:id" component={LearnerCourseReader} />
                   <Route path="/accessibility" component={LearnerAccessibility} />
                   <Route component={NotFound} />
                 </Switch>
@@ -68,6 +72,16 @@ function Router() {
             <PortalLayout>
               <Switch>
                 <Route path="/" component={EducatorPortal} />
+                <Route path="/programs">
+                  <ProtectedRoute requiredPermissions={['curriculum.manage']}>
+                    <EducatorProgramsList />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/programs/:id">
+                  <ProtectedRoute requiredPermissions={['curriculum.manage']}>
+                    <EducatorProgramDetail />
+                  </ProtectedRoute>
+                </Route>
                 <Route component={NotFound} />
               </Switch>
             </PortalLayout>

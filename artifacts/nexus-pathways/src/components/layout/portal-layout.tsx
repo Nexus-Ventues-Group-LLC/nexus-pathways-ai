@@ -51,6 +51,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
   const adminLinks = [
     { title: 'Overview', url: '/administrator', icon: LayoutDashboard, permission: 'admin.overview' },
+    { title: 'Curriculum', url: '/educator/programs', icon: BookOpen, permission: 'curriculum.manage' },
     { title: 'Facilities', url: '/administrator/facilities', icon: Building, permission: 'admin.hierarchy.manage' },
     { title: 'Programs', url: '/administrator/programs', icon: GraduationCap, permission: 'admin.hierarchy.manage' },
     { title: 'Settings', url: '/administrator/settings', icon: Settings, permission: 'tenant.configuration.manage' },
@@ -60,8 +61,8 @@ export function PortalLayout({ children }: PortalLayoutProps) {
   const educatorLinks = [
     { title: 'Dashboard', url: '/educator', icon: LayoutDashboard },
     { title: 'Cohorts', url: '/educator/cohorts', icon: Users },
-    { title: 'Programs', url: '/educator/programs', icon: BookOpen },
-  ];
+    { title: 'Programs', url: '/educator/programs', icon: BookOpen, permission: 'curriculum.manage' },
+  ].filter((item) => !item.permission || user.permissions.includes(item.permission));
 
   const learnerLinks = [
     { title: 'My Pathway', url: '/learner', icon: LayoutDashboard },

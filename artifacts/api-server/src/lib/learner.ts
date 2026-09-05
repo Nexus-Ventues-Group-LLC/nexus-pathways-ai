@@ -1,8 +1,8 @@
 import { and, eq, like, notLike, sql } from "drizzle-orm";
 import {
-  approvedLearnerResourcesTable, db, learnerActivityTable, learnerCourseworkAssignmentsTable,
+  approvedLearnerResourcesTable, courseCohortAssignmentsTable, coursesTable, db, learnerActivityTable, learnerCourseworkAssignmentsTable,
   learnerCourseworkTable, learnerGoalsTable, learnerPresentationPreferencesTable,
-  tenantConfigurationsTable,
+  learnerProfilesTable, tenantConfigurationsTable,
 } from "@workspace/db";
 import type { PortalContext } from "./identity";
 import { writeAudit } from "./identity";
@@ -26,11 +26,13 @@ async function activity(context: PortalContext) {
   return { lastActiveAt: row?.lastActiveAt ?? new Date(), ...(await policy(context)) };
 }
 export async function learnerHome(context: PortalContext) {
-  const coursework = await db.select({
-    id: learnerCourseworkTable.id, title: learnerCourseworkTable.title, description: learnerCourseworkTable.description,
-    instructionalMinutes: learnerCourseworkTable.instructionalMinutes, completedAt: learnerCourseworkAssignmentsTable.completedAt,
-  }).from(learnerCourseworkAssignmentsTable).innerJoin(learnerCourseworkTable, eq(learnerCourseworkAssignmentsTable.courseworkId, learnerCourseworkTable.id))
-    .where(and(eq(learnerCourseworkAssignmentsTable.learnerUserId, context.userId), eq(learnerCourseworkTable.organizationId, context.scope.organization.id)));
+  // Curriculum visibility is enforced at query time: learner cohort assignment + published tenant course.
+  const curriculum = await db.select({
+    id: coursesTable.id, title: coursesTable.title, description: coursesTable.description,
+  }).from(learnerProfilesTable).innerJoin(courseCohortAssignmentsTable, eq(courseCohortAssignmentsTable.cohortId, learnerProfilesTable.cohortId))
+    .innerJoin(coursesTable, eq(courseCohortAssignmentsTable.courseId, coursesTable.id))
+    .where(and(eq(learnerProfilesTable.userId, context.userId), eq(coursesTable.organizationId, context.scope.organization.id),
+      eq(coursesTable.lifecycle, "published"), sql`${courseCohortAssignmentsTable.unassignedAt} is null`));
   const [goals] = await db.select().from(learnerGoalsTable).where(and(
     eq(learnerGoalsTable.learnerUserId, context.userId),
     eq(learnerGoalsTable.organizationId, context.scope.organization.id),
@@ -48,9 +50,10 @@ export async function learnerHome(context: PortalContext) {
       like(approvedLearnerResourcesTable.route, "/learner/resources/%"),
       notLike(approvedLearnerResourcesTable.route, "//%"),
     ));
-  const mapped = coursework.map((item) => ({ id: item.id, title: item.title, description: item.description, instructionalHours: item.instructionalMinutes / 60, status: item.completedAt ? "completed" as const : "assigned" as const, completedAt: item.completedAt }));
+  // Keep the existing learner-home coursework response shape while sourced curriculum is introduced.
+  const mapped = curriculum.map((item) => ({ id: item.id, title: item.title, description: item.description, instructionalHours: 0, status: "assigned" as const, completedAt: null }));
   await audit(context, "learner.home.read");
-  return { coursework: mapped, goals: { goals: goals?.goals ?? [] }, presentationPreferences: preferences ? { textSize: preferences.textSize as Preferences["textSize"], highContrast: preferences.highContrast === 1, reduceMotion: preferences.reduceMotion === 1 } : defaults, resources, instructionalHoursCompleted: mapped.filter((item) => item.status === "completed").reduce((sum, item) => sum + item.instructionalHours, 0), activity: await activity(context) };
+  return { coursework: mapped, goals: { goals: goals?.goals ?? [] }, presentationPreferences: preferences ? { textSize: preferences.textSize as Preferences["textSize"], highContrast: preferences.highContrast === 1, reduceMotion: preferences.reduceMotion === 1 } : defaults, resources, instructionalHoursCompleted: 0, activity: await activity(context) };
 }
 export async function completeCoursework(context: PortalContext, courseworkId: string) {
   const [coursework] = await db.select().from(learnerCourseworkTable).innerJoin(learnerCourseworkAssignmentsTable, eq(learnerCourseworkAssignmentsTable.courseworkId, learnerCourseworkTable.id))

@@ -11,7 +11,7 @@ const ids = {
   program: "10000000-0000-4000-8000-000000000005", cohort: "10000000-0000-4000-8000-000000000006",
   secondFacility: "10000000-0000-4000-8000-000000000007", secondProgram: "10000000-0000-4000-8000-000000000008",
   adminRole: "10000000-0000-4000-8000-000000000010", educatorRole: "10000000-0000-4000-8000-000000000011", learnerRole: "10000000-0000-4000-8000-000000000012",
-  overview: "10000000-0000-4000-8000-000000000020", audit: "10000000-0000-4000-8000-000000000021", manageHierarchy: "10000000-0000-4000-8000-000000000022", manageTenant: "10000000-0000-4000-8000-000000000023",
+  overview: "10000000-0000-4000-8000-000000000020", audit: "10000000-0000-4000-8000-000000000021", manageHierarchy: "10000000-0000-4000-8000-000000000022", manageTenant: "10000000-0000-4000-8000-000000000023", manageCurriculum: "10000000-0000-4000-8000-000000000024",
   admin: "10000000-0000-4000-8000-000000000030", educator: "10000000-0000-4000-8000-000000000031", learner: "10000000-0000-4000-8000-000000000032",
   facilityAdmin: "10000000-0000-4000-8000-000000000033",
   coursework: "10000000-0000-4000-8000-000000000050",
@@ -40,8 +40,8 @@ async function seed() {
   await db.insert(rolesTable).values([
     { id: ids.adminRole, key: "administrator", name: "Administrator" }, { id: ids.educatorRole, key: "educator", name: "Educator" }, { id: ids.learnerRole, key: "learner", name: "Learner" },
   ]).onConflictDoNothing();
-  await db.insert(permissionsTable).values([{ id: ids.overview, key: "admin.overview", description: "View scoped administration overview" }, { id: ids.audit, key: "audit.read", description: "Read scoped security audit events" }, { id: ids.manageHierarchy, key: "admin.hierarchy.manage", description: "Manage facilities and programs in assigned scope" }, { id: ids.manageTenant, key: "tenant.configuration.manage", description: "Manage tenant configuration" }]).onConflictDoNothing();
-  await db.insert(rolePermissionsTable).values([{ roleId: ids.adminRole, permissionId: ids.overview }, { roleId: ids.adminRole, permissionId: ids.audit }, { roleId: ids.adminRole, permissionId: ids.manageHierarchy }, { roleId: ids.adminRole, permissionId: ids.manageTenant }]).onConflictDoNothing();
+  await db.insert(permissionsTable).values([{ id: ids.overview, key: "admin.overview", description: "View scoped administration overview" }, { id: ids.audit, key: "audit.read", description: "Read scoped security audit events" }, { id: ids.manageHierarchy, key: "admin.hierarchy.manage", description: "Manage facilities and programs in assigned scope" }, { id: ids.manageTenant, key: "tenant.configuration.manage", description: "Manage tenant configuration" }, { id: ids.manageCurriculum, key: "curriculum.manage", description: "Author, review, publish, and assign curriculum in assigned scope" }]).onConflictDoNothing();
+  await db.insert(rolePermissionsTable).values([{ roleId: ids.adminRole, permissionId: ids.overview }, { roleId: ids.adminRole, permissionId: ids.audit }, { roleId: ids.adminRole, permissionId: ids.manageHierarchy }, { roleId: ids.adminRole, permissionId: ids.manageTenant }, { roleId: ids.adminRole, permissionId: ids.manageCurriculum }, { roleId: ids.educatorRole, permissionId: ids.manageCurriculum }]).onConflictDoNothing();
   await db.insert(usersTable).values([
     { id: ids.admin, clerkUserId: "user_nexus_demo_admin", displayName: "Avery Morgan", email: "avery.morgan@example.test" },
     { id: ids.educator, clerkUserId: "user_nexus_demo_educator", displayName: "Jordan Ellis", email: "jordan.ellis@example.test" },
