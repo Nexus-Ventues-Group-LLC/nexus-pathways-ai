@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ArrowRight, CheckCircle2, CircleDashed, FileEdit, Archive, Activity } from 'lucide-react';
 import type { Course, CourseVersion } from '@workspace/api-client-react';
+import { trackEvent } from '@/lib/analytics';
 
 export default function CourseLifecycleManager({ courseId, course }: { courseId: string, course?: Course }) {
   const { data: versions, isLoading: versionsLoading } = useListCourseVersions(courseId);
@@ -46,6 +47,13 @@ export default function CourseLifecycleManager({ courseId, course }: { courseId:
           setChangeNote('');
           setTargetLifecycle(null);
           toast({ title: `Course moved to ${lifecycleEnum}` });
+
+          if (lifecycleEnum === 'published') {
+            trackEvent('course_published', {
+              previous_lifecycle: course?.lifecycle || 'unknown',
+              publication_path: course?.lifecycle === 'approved' ? 'after_approval' : 'direct',
+            });
+          }
         },
         onError: () => {
           toast({ title: 'Failed to transition course', variant: 'destructive' });

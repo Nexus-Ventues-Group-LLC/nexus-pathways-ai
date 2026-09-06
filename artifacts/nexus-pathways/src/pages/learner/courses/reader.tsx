@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'wouter';
 import { useGetLearnerCourse, getGetLearnerCourseQueryKey } from '@workspace/api-client-react';
 import type { Subject, Module, Unit, Lesson, Activity, Assessment, Skill } from '@workspace/api-client-react';
@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, BookOpen, FileText, ChevronRight, PlayCircle, Target, Award, ArrowRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { trackEvent } from '@/lib/analytics';
 
 type ActiveContent = 
   | { type: 'activity'; data: Activity; path: string }
@@ -23,6 +24,34 @@ export default function LearnerCourseReader() {
   });
 
   const [activeContent, setActiveContent] = useState<ActiveContent>(null);
+  const courseOpenTracked = useRef(false);
+
+  useEffect(() => {
+    if (!structure || courseOpenTracked.current) return;
+
+    const hasNavigableContent = structure.subjects.some(subject =>
+      subject.modules.some(module =>
+        module.units.some(unit =>
+          unit.lessons.some(lesson =>
+            lesson.activities.length > 0 || lesson.assessments.length > 0
+          )
+        )
+      )
+    );
+
+    courseOpenTracked.current = true;
+    trackEvent('learner_course_opened', {
+      has_navigable_content: hasNavigableContent,
+    });
+  }, [structure]);
+
+  const handleContentSelect = useCallback((content: Exclude<ActiveContent, null>) => {
+    setActiveContent(content);
+    trackEvent('course_content_navigated', {
+      content_type: content.type,
+      navigation_source: 'syllabus',
+    });
+  }, []);
   
   // Auto-select first content item
   useEffect(() => {
@@ -123,7 +152,7 @@ export default function LearnerCourseReader() {
                   subject={subject} 
                   index={sIdx + 1}
                   activeContent={activeContent}
-                  onSelect={setActiveContent}
+                  onSelect={handleContentSelect}
                 />
               ))}
             </div>

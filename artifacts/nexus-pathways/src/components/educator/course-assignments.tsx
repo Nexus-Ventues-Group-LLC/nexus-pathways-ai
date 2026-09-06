@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { Users, Check, X, ShieldAlert } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
+import { trackEvent } from '@/lib/analytics';
 
 export default function CourseAssignments({ courseId }: { courseId: string }) {
   const { data: assignments, isLoading: assignmentsLoading } = useListCourseAssignments(courseId);
@@ -32,6 +33,12 @@ export default function CourseAssignments({ courseId }: { courseId: string }) {
           toast({ 
             title: `Course ${!currentlyAssigned ? 'assigned to' : 'unassigned from'} cohort` 
           });
+
+          if (!currentlyAssigned) {
+            trackEvent('course_assigned_to_cohort', {
+              assignment_action: 'assigned',
+            });
+          }
         },
         onError: () => {
           toast({ title: 'Failed to update assignment', variant: 'destructive' });
