@@ -1,0 +1,19 @@
+import { Router, type IRouter } from "express";
+import { CreateFacilityBody, CreateFacilityResponse, CreateProgramBody, CreateProgramResponse, GetAdminHierarchyResponse, GetTenantConfigurationResponse, UpdateFacilityBody, UpdateFacilityParams, UpdateFacilityResponse, UpdateProgramBody, UpdateProgramParams, UpdateProgramResponse, UpdateTenantConfigurationBody, UpdateTenantConfigurationResponse } from "@workspace/api-zod";
+import { requirePermission, requirePortalAuth } from "../middlewares/auth";
+import * as service from "../lib/administration";
+
+const router: IRouter = Router();
+const invalid = (res: any, result: { error: { message: string } }) => res.status(400).json({ error: result.error.message });
+const failure = (res: any, error: unknown) => {
+  if (error instanceof service.AdministrationError) { res.status(error.kind === "forbidden" ? 403 : 404).json({ error: error.kind === "forbidden" ? "Forbidden" : "Resource not found" }); return true; }
+  return false;
+};
+router.get("/admin/hierarchy", requirePortalAuth, requirePermission("admin.overview"), async (req, res): Promise<void> => { res.json(GetAdminHierarchyResponse.parse(await service.hierarchy(req.portalContext!))); });
+router.post("/admin/facilities", requirePortalAuth, requirePermission("admin.hierarchy.manage"), async (req, res): Promise<void> => { const body = CreateFacilityBody.safeParse(req.body); if (!body.success) { invalid(res, body); return; } try { res.status(201).json(CreateFacilityResponse.parse(await service.createFacility(req.portalContext!, body.data))); } catch (error) { if (!failure(res, error)) throw error; } });
+router.patch("/admin/facilities/:facilityId", requirePortalAuth, requirePermission("admin.hierarchy.manage"), async (req, res): Promise<void> => { const params = UpdateFacilityParams.safeParse(req.params), body = UpdateFacilityBody.safeParse(req.body); if (!params.success) { invalid(res, params); return; } if (!body.success) { invalid(res, body); return; } try { res.json(UpdateFacilityResponse.parse(await service.updateFacility(req.portalContext!, params.data.facilityId, body.data))); } catch (error) { if (!failure(res, error)) throw error; } });
+router.post("/admin/programs", requirePortalAuth, requirePermission("admin.hierarchy.manage"), async (req, res): Promise<void> => { const body = CreateProgramBody.safeParse(req.body); if (!body.success) { invalid(res, body); return; } try { res.status(201).json(CreateProgramResponse.parse(await service.createProgram(req.portalContext!, body.data))); } catch (error) { if (!failure(res, error)) throw error; } });
+router.patch("/admin/programs/:programId", requirePortalAuth, requirePermission("admin.hierarchy.manage"), async (req, res): Promise<void> => { const params = UpdateProgramParams.safeParse(req.params), body = UpdateProgramBody.safeParse(req.body); if (!params.success) { invalid(res, params); return; } if (!body.success) { invalid(res, body); return; } try { res.json(UpdateProgramResponse.parse(await service.updateProgram(req.portalContext!, params.data.programId, body.data))); } catch (error) { if (!failure(res, error)) throw error; } });
+router.get("/admin/tenant-configuration", requirePortalAuth, requirePermission("tenant.configuration.manage"), async (req, res): Promise<void> => { try { res.json(GetTenantConfigurationResponse.parse(await service.tenantConfiguration(req.portalContext!))); } catch (error) { if (!failure(res, error)) throw error; } });
+router.patch("/admin/tenant-configuration", requirePortalAuth, requirePermission("tenant.configuration.manage"), async (req, res): Promise<void> => { const body = UpdateTenantConfigurationBody.safeParse(req.body); if (!body.success) { invalid(res, body); return; } try { res.json(UpdateTenantConfigurationResponse.parse(await service.updateTenantConfiguration(req.portalContext!, body.data))); } catch (error) { if (!failure(res, error)) throw error; } });
+export default router;
