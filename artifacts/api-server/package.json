@@ -10,7 +10,9 @@
     "pretypecheck": "pnpm -w run typecheck:libs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "pretest": "pnpm --filter @workspace/db run push && pnpm --filter @workspace/scripts run seed:nexus-phase1",
-    "test": "vitest run"
+    "test": "vitest run",
+    "pretest:integration:isolation": "pnpm --filter @workspace/db run push && pnpm --filter @workspace/scripts run seed:nexus-phase1",
+    "test:integration:isolation": "node ./scripts/test-integration-isolation.mjs"
   },
   "dependencies": {
     "@clerk/express": "^2.1.66",

@@ -1,2 +1,3 @@
 - [OpenAPI integer codegen](openapi-integer-codegen.md) — use number plus multipleOf 1 because generated integer validators are incompatible with the resolved Zod version.
 - [Clerk seeded test identities](clerk-seeded-test-identities.md) — browser testers cannot assume fake seeded Clerk subjects; use a real mapped test user or service-level auth checks.
+- [Database test rendezvous](database-test-rendezvous.md) — concurrent test barriers need an ordered departure handshake or healthy cleanup can look like missing overlap.

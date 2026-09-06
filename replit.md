@@ -1,3 +1,8 @@
+## API server tests
+
+- Run the API server test suite: `pnpm --filter @workspace/api-server test`
+- Stress shared-database fixture isolation in two concurrent integration-test processes: `pnpm --filter @workspace/api-server test:integration:isolation`
+
 # Nexus Pathways AI
 
 Phase 1 is an Express, Drizzle, PostgreSQL foundation for Clerk-cookie authentication, scoped organization access, local RBAC, revocable application sessions, and immutable audit records.
