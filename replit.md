@@ -9,6 +9,7 @@ Phase 1 is an Express, Drizzle, PostgreSQL foundation for Clerk-cookie authentic
 
 ## Commands
 - `pnpm run typecheck` — workspace typecheck
+- `pnpm run validate:workflows` — validate every GitHub Actions workflow with actionlint
 - `pnpm --filter @workspace/db run push` — apply development schema
 - `pnpm --filter @workspace/scripts run seed:nexus-phase1` — opt-in deterministic synthetic seed
 
