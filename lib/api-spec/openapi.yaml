@@ -388,6 +388,121 @@ paths:
               schema: { $ref: "#/components/schemas/LearnerActivity" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
+  /learner/assessments:
+    get:
+      operationId: listLearnerAssessments
+      tags: [learner]
+      summary: List assessments assigned to the authenticated learner
+      security: [{ clerkSession: [] }]
+      responses:
+        "200": { description: Assigned assessments, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/LearnerAssessment" } } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /learner/assessments/{assessmentId}:
+    get:
+      operationId: getLearnerAssessment
+      tags: [learner]
+      summary: Get an eligible assessment without answer keys
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/AssessmentId" }]
+      responses:
+        "200": { description: Assessment detail, content: { application/json: { schema: { $ref: "#/components/schemas/LearnerAssessmentDetail" } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /learner/assessments/{assessmentId}/attempts:
+    get:
+      operationId: listLearnerAssessmentAttempts
+      tags: [learner]
+      summary: List the authenticated learner's assessment attempts
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/AssessmentId" }]
+      responses:
+        "200": { description: Attempt history, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/LearnerAssessmentAttempt" } } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: startLearnerAssessmentAttempt
+      tags: [learner]
+      summary: Start or resume the learner's open assessment attempt
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/AssessmentId" }]
+      responses:
+        "200": { description: Open attempt, content: { application/json: { schema: { $ref: "#/components/schemas/LearnerAssessmentAttempt" } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /learner/assessments/{assessmentId}/attempts/{attemptId}/responses:
+    post:
+      operationId: submitLearnerAssessmentResponses
+      tags: [learner]
+      summary: Submit and deterministically score an attempt; submitted attempts are immutable
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/AssessmentId" }, { $ref: "#/components/parameters/AttemptId" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentResponseSubmission" } } } }
+      responses:
+        "200": { description: Submitted attempt, content: { application/json: { schema: { $ref: "#/components/schemas/LearnerAssessmentAttempt" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /learner/mastery:
+    get:
+      operationId: getLearnerMastery
+      tags: [learner]
+      summary: Get learner-owned mastery calculated from submitted attempts
+      security: [{ clerkSession: [] }]
+      responses:
+        "200": { description: Mastery, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/LearnerMastery" } } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/assessments:
+    get:
+      operationId: listAssessmentDefinitions
+      tags: [curriculum]
+      summary: List tenant-authored assessment definitions for staff selection
+      security: [{ clerkSession: [] }]
+      responses:
+        "200": { description: Assessment definitions, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/StaffAssessmentDefinition" } } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      operationId: createAssessmentDefinition
+      tags: [curriculum]
+      summary: Create a tenant assessment definition with scored multiple-choice questions
+      security: [{ clerkSession: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentDefinitionInput" } } } }
+      responses:
+        "201": { description: Created assessment definition, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentDefinition" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /admin/assessment-learners:
+    get:
+      operationId: listEligibleAssessmentLearners
+      tags: [curriculum]
+      summary: List tenant learners eligible for standalone assessment assignment
+      security: [{ clerkSession: [] }]
+      responses:
+        "200": { description: Eligible learner identities, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/AssessmentEligibleLearner" } } } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /admin/assessments/{assessmentId}/assignments:
+    post:
+      operationId: assignAssessmentToLearner
+      tags: [curriculum]
+      summary: Assign a standalone assessment to a learner in the tenant
+      security: [{ clerkSession: [] }]
+      parameters: [{ $ref: "#/components/parameters/AssessmentId" }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentLearnerAssignmentInput" } } } }
+      responses:
+        "200": { description: Assessment assignment, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentLearnerAssignment" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /admin/courses:
     get:
       operationId: listCourses
@@ -540,6 +655,16 @@ components:
       schema: { type: string }
     CourseId:
       name: courseId
+      in: path
+      required: true
+      schema: { type: string }
+    AssessmentId:
+      name: assessmentId
+      in: path
+      required: true
+      schema: { type: string }
+    AttemptId:
+      name: attemptId
       in: path
       required: true
       schema: { type: string }
@@ -857,6 +982,119 @@ components:
         sessionTimeoutMinutes: { type: number }
         inactivityTimeoutMinutes: { type: number }
       required: [lastActiveAt, sessionTimeoutMinutes, inactivityTimeoutMinutes]
+    LearnerAssessment:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        instructions: { type: string }
+        kind: { type: string, enum: [placement, diagnostic, lesson, unit, practice] }
+        questionCount: { type: number }
+      required: [id, title, instructions, kind, questionCount]
+    LearnerAssessmentQuestion:
+      type: object
+      properties:
+        id: { type: string }
+        prompt: { type: string }
+        choices: { type: array, items: { type: string } }
+        position: { type: number }
+        skillId: { type: ["string", "null"] }
+      required: [id, prompt, choices, position, skillId]
+    AssessmentQuestionInput:
+      type: object
+      additionalProperties: false
+      properties:
+        prompt: { type: string, minLength: 1 }
+        choices: { type: array, minItems: 2, items: { type: string, minLength: 1 } }
+        correctAnswer: { type: string, minLength: 1 }
+        skillId: { type: string }
+        skillLabel: { type: string, minLength: 1 }
+      required: [prompt, choices, correctAnswer]
+    AssessmentDefinitionInput:
+      type: object
+      additionalProperties: false
+      properties:
+        kind: { type: string, enum: [placement, diagnostic, lesson, unit, practice] }
+        title: { type: string, minLength: 1 }
+        instructions: { type: string }
+        curriculumAssessmentId: { type: string }
+        unitId: { type: string }
+        questions: { type: array, minItems: 1, items: { $ref: "#/components/schemas/AssessmentQuestionInput" } }
+      required: [kind, title, questions]
+    AssessmentDefinition:
+      allOf:
+        - $ref: "#/components/schemas/LearnerAssessment"
+        - type: object
+          properties:
+            curriculumAssessmentId: { type: ["string", "null"] }
+            unitId: { type: ["string", "null"] }
+          required: [curriculumAssessmentId, unitId]
+    StaffAssessmentDefinition:
+      allOf:
+        - $ref: "#/components/schemas/AssessmentDefinition"
+        - type: object
+          properties: { assignmentCount: { type: number, minimum: 0 } }
+          required: [assignmentCount]
+    AssessmentEligibleLearner:
+      type: object
+      properties:
+        id: { type: string }
+        displayName: { type: string }
+        cohort: { type: ["string", "null"] }
+        program: { type: ["string", "null"] }
+        facility: { type: ["string", "null"] }
+      required: [id, displayName, cohort, program, facility]
+    AssessmentLearnerAssignmentInput:
+      type: object
+      additionalProperties: false
+      properties: { learnerUserId: { type: string }, assigned: { type: boolean } }
+      required: [learnerUserId, assigned]
+    AssessmentLearnerAssignment:
+      type: object
+      properties:
+        id: { type: string }
+        assessmentId: { type: string }
+        learnerUserId: { type: string }
+        assignedAt: { type: string, format: date-time }
+        unassignedAt: { type: ["string", "null"], format: date-time }
+      required: [id, assessmentId, learnerUserId, assignedAt, unassignedAt]
+    LearnerAssessmentDetail:
+      allOf:
+        - $ref: "#/components/schemas/LearnerAssessment"
+        - type: object
+          properties: { questions: { type: array, items: { $ref: "#/components/schemas/LearnerAssessmentQuestion" } } }
+          required: [questions]
+    AssessmentResponseInput:
+      type: object
+      additionalProperties: false
+      properties: { questionId: { type: string }, answer: { type: string, maxLength: 10000 } }
+      required: [questionId, answer]
+    AssessmentResponseSubmission:
+      type: object
+      additionalProperties: false
+      properties: { responses: { type: array, items: { $ref: "#/components/schemas/AssessmentResponseInput" } } }
+      required: [responses]
+    LearnerAssessmentAttempt:
+      type: object
+      properties:
+        id: { type: string }
+        assessmentId: { type: string }
+        status: { type: string, enum: [in_progress, submitted] }
+        startedAt: { type: string, format: date-time }
+        submittedAt: { type: ["string", "null"], format: date-time }
+        score: { type: ["number", "null"] }
+        totalQuestions: { type: number }
+        correctAnswers: { type: ["number", "null"] }
+        questions: { type: array, items: { $ref: "#/components/schemas/LearnerAssessmentQuestion" } }
+      required: [id, assessmentId, status, startedAt, submittedAt, score, totalQuestions, correctAnswers, questions]
+    LearnerMastery:
+      type: object
+      properties:
+        skillId: { type: ["string", "null"] }
+        assessmentKind: { type: string, enum: [placement, diagnostic, lesson, unit, practice] }
+        score: { type: number }
+        updatedAt: { type: string, format: date-time }
+      required: [skillId, assessmentKind, score, updatedAt]
     LearnerHome:
       type: object
       properties:
@@ -974,8 +1212,8 @@ components:
       required: [id, title, content, position, instructionalMinutes]
     Assessment:
       type: object
-      properties: { id: { type: string }, title: { type: string }, instructions: { type: string }, position: { type: number }, skills: { type: array, items: { $ref: "#/components/schemas/Skill" } } }
-      required: [id, title, instructions, position, skills]
+      properties: { id: { type: string }, learnerAssessmentId: { type: ["string", "null"] }, title: { type: string }, instructions: { type: string }, position: { type: number }, skills: { type: array, items: { $ref: "#/components/schemas/Skill" } } }
+      required: [id, learnerAssessmentId, title, instructions, position, skills]
     Skill:
       type: object
       properties: { id: { type: string }, title: { type: string }, description: { type: string }, position: { type: number } }

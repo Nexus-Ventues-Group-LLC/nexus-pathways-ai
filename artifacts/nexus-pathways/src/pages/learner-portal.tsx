@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { useGetLearnerHome, useUpdateLearnerGoals, getGetLearnerHomeQueryKey } from '@workspace/api-client-react';
-import type { LearnerCoursework, LearnerHome } from '@workspace/api-client-react';
+import { useGetLearnerHome, useUpdateLearnerGoals, useListLearnerAssessments, getGetLearnerHomeQueryKey } from '@workspace/api-client-react';
+import type { LearnerCoursework, LearnerHome, LearnerAssessment } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -171,10 +171,47 @@ function CourseworkItem({ item }: { item: LearnerCoursework }) {
   );
 }
 
-export default function LearnerPortal() {
-  const { data: home, isLoading, error } = useGetLearnerHome();
+function AssessmentItem({ item }: { item: LearnerAssessment }) {
+  return (
+    <div className="p-4 rounded-lg border bg-card border-border shadow-sm flex flex-col gap-3 transition-colors hover-elevate">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h4 className="font-medium text-foreground">
+            {item.title}
+          </h4>
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed line-clamp-2">
+            {item.instructions}
+          </p>
+        </div>
+        <div className="shrink-0 text-xs font-medium text-accent bg-accent/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+          {item.kind}
+        </div>
+      </div>
 
-  if (error) {
+      <div className="flex items-center justify-between mt-2">
+        <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          {item.questionCount} Questions
+        </div>
+        <Link href={`/learner/assessments/${item.id}`}>
+          <Button
+            className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+            size="sm"
+          >
+            <Target className="h-4 w-4" />
+            Open Assessment
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function LearnerPortal() {
+  const { data: home, isLoading: isLoadingHome, error: homeError } = useGetLearnerHome();
+  const { data: assessments, isLoading: isLoadingAssessments, error: assessmentsError } = useListLearnerAssessments();
+
+  if (homeError || assessmentsError) {
     return (
       <div className="p-8 max-w-4xl mx-auto">
         <div className="bg-destructive/10 text-destructive p-4 rounded-lg flex items-center gap-3">
@@ -185,7 +222,7 @@ export default function LearnerPortal() {
     );
   }
 
-  if (isLoading || !home) return null;
+  if (isLoadingHome || isLoadingAssessments || !home || !assessments) return null;
 
   const assignedCount = home.coursework.filter(c => c.status === 'assigned').length;
   const completedCount = home.coursework.length - assignedCount;
@@ -210,8 +247,31 @@ export default function LearnerPortal() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        {/* Left Column: Coursework */}
+        {/* Left Column: Coursework & Assessments */}
         <div className="lg:col-span-8 space-y-6">
+          {assessments && assessments.length > 0 && (
+            <Card className="border-accent/20 shadow-sm bg-accent/5 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl font-serif flex items-center gap-2">
+                    <Target className="h-5 w-5 text-accent" />
+                    Practice Assessments
+                  </CardTitle>
+                  <div className="bg-accent/10 text-accent px-3 py-1 rounded-full text-sm font-medium">
+                    {assessments.length} Available
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {assessments.map(item => (
+                    <AssessmentItem key={item.id} item={item} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">

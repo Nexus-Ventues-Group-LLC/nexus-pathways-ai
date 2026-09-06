@@ -5,14 +5,12 @@
  * Nexus Pathways AI Phase 1 foundation API
  * OpenAPI spec version: 0.1.0
  */
-import type { Skill } from './skill';
 
-export interface Assessment {
+export interface LearnerAssessmentQuestion {
   id: string;
-  /** @nullable */
-  learnerAssessmentId: string | null;
-  title: string;
-  instructions: string;
+  prompt: string;
+  choices: string[];
   position: number;
-  skills: Skill[];
+  /** @nullable */
+  skillId: string | null;
 }

@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronLeft, BookOpen, FileText, ChevronRight, PlayCircle, Target, Award } from 'lucide-react';
+import { ChevronLeft, BookOpen, FileText, ChevronRight, PlayCircle, Target, Award, ArrowRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 type ActiveContent = 
@@ -294,26 +294,39 @@ function ActivityViewer({ activity }: { activity: Activity }) {
 function AssessmentViewer({ assessment }: { assessment: Assessment }) {
   return (
     <div className="space-y-8 pb-20">
-      <div>
-        <h1 className="text-3xl md:text-4xl font-serif font-semibold tracking-tight text-foreground mb-4">
-          {assessment.title}
-        </h1>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg border border-border/50">
-          <div className="flex items-center gap-1.5">
-            <Award className="size-4 text-emerald-500" />
-            <span>Practice Assessment</span>
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-serif font-semibold tracking-tight text-foreground mb-4">
+            {assessment.title}
+          </h1>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg border border-border/50 w-fit">
+            <div className="flex items-center gap-1.5">
+              <Award className="size-4 text-accent" />
+              <span>Practice Assessment</span>
+            </div>
           </div>
         </div>
+        {assessment.learnerAssessmentId ? (
+          <Button asChild size="lg" className="w-full md:w-auto shrink-0 bg-accent hover:bg-accent/90 text-accent-foreground hover-elevate">
+            <Link href={`/learner/assessments/${assessment.learnerAssessmentId}`}>
+              Start Practice <ArrowRight className="ml-2 size-4" />
+            </Link>
+          </Button>
+        ) : (
+          <div className="px-4 py-2 bg-muted/30 text-muted-foreground rounded-lg border border-border/50 text-sm font-medium">
+            Not yet assigned
+          </div>
+        )}
       </div>
 
       {assessment.instructions && (
-        <Card className="border-emerald-500/20 bg-emerald-50/30 dark:bg-emerald-950/10 shadow-sm">
+        <Card className="border-accent/20 bg-accent/5 shadow-sm">
           <CardContent className="p-6">
-            <h3 className="text-emerald-800 dark:text-emerald-300 font-medium mb-2 flex items-center gap-2">
-              <FileText className="size-4" />
+            <h3 className="text-foreground font-medium mb-2 flex items-center gap-2">
+              <FileText className="size-4 text-accent" />
               Instructions
             </h3>
-            <p className="text-emerald-900/80 dark:text-emerald-200/80 whitespace-pre-wrap leading-relaxed">
+            <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
               {assessment.instructions}
             </p>
           </CardContent>
@@ -326,7 +339,7 @@ function AssessmentViewer({ assessment }: { assessment: Assessment }) {
           <div className="grid gap-4">
             {assessment.skills.map((skill, i) => (
               <div key={skill.id || i} className="flex gap-4 p-4 rounded-xl border bg-card hover:bg-muted/10 transition-colors">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent font-semibold text-sm">
                   {i + 1}
                 </div>
                 <div>

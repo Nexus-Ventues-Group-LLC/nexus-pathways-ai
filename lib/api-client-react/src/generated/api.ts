@@ -21,6 +21,12 @@ import type {
 
 import type {
   AdminOverview,
+  AssessmentDefinition,
+  AssessmentDefinitionInput,
+  AssessmentEligibleLearner,
+  AssessmentLearnerAssignment,
+  AssessmentLearnerAssignmentInput,
+  AssessmentResponseSubmission,
   AuditEvent,
   BadRequestResponse,
   Course,
@@ -41,10 +47,14 @@ import type {
   ForbiddenResponse,
   HealthStatus,
   LearnerActivity,
+  LearnerAssessment,
+  LearnerAssessmentAttempt,
+  LearnerAssessmentDetail,
   LearnerCoursework,
   LearnerGoals,
   LearnerGoalsUpdate,
   LearnerHome,
+  LearnerMastery,
   ListAuditEventsParams,
   NotFoundResponse,
   OrganizationHierarchy,
@@ -53,6 +63,7 @@ import type {
   Program,
   ProgramInput,
   ProgramUpdate,
+  StaffAssessmentDefinition,
   TenantConfiguration,
   TenantConfigurationUpdate,
   UnauthorizedResponse
@@ -1425,6 +1436,756 @@ export const useRecordLearnerActivity = <TError = ErrorType<UnauthorizedResponse
         TContext
       > => {
       return useMutation(getRecordLearnerActivityMutationOptions(options));
+    }
+
+export const getListLearnerAssessmentsUrl = () => {
+
+
+
+
+  return `/api/learner/assessments`
+}
+
+/**
+ * @summary List assessments assigned to the authenticated learner
+ */
+export const listLearnerAssessments = async ( options?: Parameters<typeof customFetch>[1]): Promise<LearnerAssessment[]> => {
+
+  return customFetch<LearnerAssessment[]>(getListLearnerAssessmentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListLearnerAssessmentsQueryKey = () => {
+    return [
+    `/api/learner/assessments`
+    ] as const;
+    }
+
+
+export const getListLearnerAssessmentsQueryOptions = <TData = Awaited<ReturnType<typeof listLearnerAssessments>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLearnerAssessments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListLearnerAssessmentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listLearnerAssessments>>> = ({ signal }) => listLearnerAssessments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listLearnerAssessments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListLearnerAssessmentsQueryResult = NonNullable<Awaited<ReturnType<typeof listLearnerAssessments>>>
+export type ListLearnerAssessmentsQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+
+
+/**
+ * @summary List assessments assigned to the authenticated learner
+ */
+
+export function useListLearnerAssessments<TData = Awaited<ReturnType<typeof listLearnerAssessments>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLearnerAssessments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListLearnerAssessmentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLearnerAssessmentUrl = (assessmentId: string,) => {
+
+
+
+
+  return `/api/learner/assessments/${assessmentId}`
+}
+
+/**
+ * @summary Get an eligible assessment without answer keys
+ */
+export const getLearnerAssessment = async (assessmentId: string, options?: Parameters<typeof customFetch>[1]): Promise<LearnerAssessmentDetail> => {
+
+  return customFetch<LearnerAssessmentDetail>(getGetLearnerAssessmentUrl(assessmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLearnerAssessmentQueryKey = (assessmentId: string,) => {
+    return [
+    `/api/learner/assessments/${assessmentId}`
+    ] as const;
+    }
+
+
+export const getGetLearnerAssessmentQueryOptions = <TData = Awaited<ReturnType<typeof getLearnerAssessment>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>>(assessmentId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearnerAssessment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLearnerAssessmentQueryKey(assessmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLearnerAssessment>>> = ({ signal }) => getLearnerAssessment(assessmentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: assessmentId !== null && assessmentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLearnerAssessment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLearnerAssessmentQueryResult = NonNullable<Awaited<ReturnType<typeof getLearnerAssessment>>>
+export type GetLearnerAssessmentQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+
+
+/**
+ * @summary Get an eligible assessment without answer keys
+ */
+
+export function useGetLearnerAssessment<TData = Awaited<ReturnType<typeof getLearnerAssessment>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>>(
+ assessmentId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearnerAssessment>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLearnerAssessmentQueryOptions(assessmentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListLearnerAssessmentAttemptsUrl = (assessmentId: string,) => {
+
+
+
+
+  return `/api/learner/assessments/${assessmentId}/attempts`
+}
+
+/**
+ * @summary List the authenticated learner's assessment attempts
+ */
+export const listLearnerAssessmentAttempts = async (assessmentId: string, options?: Parameters<typeof customFetch>[1]): Promise<LearnerAssessmentAttempt[]> => {
+
+  return customFetch<LearnerAssessmentAttempt[]>(getListLearnerAssessmentAttemptsUrl(assessmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListLearnerAssessmentAttemptsQueryKey = (assessmentId: string,) => {
+    return [
+    `/api/learner/assessments/${assessmentId}/attempts`
+    ] as const;
+    }
+
+
+export const getListLearnerAssessmentAttemptsQueryOptions = <TData = Awaited<ReturnType<typeof listLearnerAssessmentAttempts>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>>(assessmentId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLearnerAssessmentAttempts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListLearnerAssessmentAttemptsQueryKey(assessmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listLearnerAssessmentAttempts>>> = ({ signal }) => listLearnerAssessmentAttempts(assessmentId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: assessmentId !== null && assessmentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listLearnerAssessmentAttempts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListLearnerAssessmentAttemptsQueryResult = NonNullable<Awaited<ReturnType<typeof listLearnerAssessmentAttempts>>>
+export type ListLearnerAssessmentAttemptsQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+
+
+/**
+ * @summary List the authenticated learner's assessment attempts
+ */
+
+export function useListLearnerAssessmentAttempts<TData = Awaited<ReturnType<typeof listLearnerAssessmentAttempts>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>>(
+ assessmentId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listLearnerAssessmentAttempts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListLearnerAssessmentAttemptsQueryOptions(assessmentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getStartLearnerAssessmentAttemptUrl = (assessmentId: string,) => {
+
+
+
+
+  return `/api/learner/assessments/${assessmentId}/attempts`
+}
+
+/**
+ * @summary Start or resume the learner's open assessment attempt
+ */
+export const startLearnerAssessmentAttempt = async (assessmentId: string, options?: Parameters<typeof customFetch>[1]): Promise<LearnerAssessmentAttempt> => {
+
+  return customFetch<LearnerAssessmentAttempt>(getStartLearnerAssessmentAttemptUrl(assessmentId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getStartLearnerAssessmentAttemptMutationOptions = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startLearnerAssessmentAttempt>>, TError,{assessmentId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startLearnerAssessmentAttempt>>, TError,{assessmentId: string}, TContext> => {
+
+const mutationKey = ['startLearnerAssessmentAttempt'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startLearnerAssessmentAttempt>>, {assessmentId: string}> = (props) => {
+          const {assessmentId} = props ?? {};
+
+          return  startLearnerAssessmentAttempt(assessmentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartLearnerAssessmentAttemptMutationResult = NonNullable<Awaited<ReturnType<typeof startLearnerAssessmentAttempt>>>
+
+    export type StartLearnerAssessmentAttemptMutationError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Start or resume the learner's open assessment attempt
+ */
+export const useStartLearnerAssessmentAttempt = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startLearnerAssessmentAttempt>>, TError,{assessmentId: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startLearnerAssessmentAttempt>>,
+        TError,
+        {assessmentId: string},
+        TContext
+      > => {
+      return useMutation(getStartLearnerAssessmentAttemptMutationOptions(options));
+    }
+
+export const getSubmitLearnerAssessmentResponsesUrl = (assessmentId: string,
+    attemptId: string,) => {
+
+
+
+
+  return `/api/learner/assessments/${assessmentId}/attempts/${attemptId}/responses`
+}
+
+/**
+ * @summary Submit and deterministically score an attempt; submitted attempts are immutable
+ */
+export const submitLearnerAssessmentResponses = async (assessmentId: string,
+    attemptId: string,
+    assessmentResponseSubmission: AssessmentResponseSubmission, options?: Parameters<typeof customFetch>[1]): Promise<LearnerAssessmentAttempt> => {
+
+  return customFetch<LearnerAssessmentAttempt>(getSubmitLearnerAssessmentResponsesUrl(assessmentId,attemptId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(assessmentResponseSubmission)
+  }
+);}
+
+
+
+
+
+export const getSubmitLearnerAssessmentResponsesMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitLearnerAssessmentResponses>>, TError,{assessmentId: string;attemptId: string;data: BodyType<AssessmentResponseSubmission>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitLearnerAssessmentResponses>>, TError,{assessmentId: string;attemptId: string;data: BodyType<AssessmentResponseSubmission>}, TContext> => {
+
+const mutationKey = ['submitLearnerAssessmentResponses'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitLearnerAssessmentResponses>>, {assessmentId: string;attemptId: string;data: BodyType<AssessmentResponseSubmission>}> = (props) => {
+          const {assessmentId,attemptId,data} = props ?? {};
+
+          return  submitLearnerAssessmentResponses(assessmentId,attemptId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitLearnerAssessmentResponsesMutationResult = NonNullable<Awaited<ReturnType<typeof submitLearnerAssessmentResponses>>>
+    export type SubmitLearnerAssessmentResponsesMutationBody = BodyType<AssessmentResponseSubmission>
+    export type SubmitLearnerAssessmentResponsesMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Submit and deterministically score an attempt; submitted attempts are immutable
+ */
+export const useSubmitLearnerAssessmentResponses = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitLearnerAssessmentResponses>>, TError,{assessmentId: string;attemptId: string;data: BodyType<AssessmentResponseSubmission>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitLearnerAssessmentResponses>>,
+        TError,
+        {assessmentId: string;attemptId: string;data: BodyType<AssessmentResponseSubmission>},
+        TContext
+      > => {
+      return useMutation(getSubmitLearnerAssessmentResponsesMutationOptions(options));
+    }
+
+export const getGetLearnerMasteryUrl = () => {
+
+
+
+
+  return `/api/learner/mastery`
+}
+
+/**
+ * @summary Get learner-owned mastery calculated from submitted attempts
+ */
+export const getLearnerMastery = async ( options?: Parameters<typeof customFetch>[1]): Promise<LearnerMastery[]> => {
+
+  return customFetch<LearnerMastery[]>(getGetLearnerMasteryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLearnerMasteryQueryKey = () => {
+    return [
+    `/api/learner/mastery`
+    ] as const;
+    }
+
+
+export const getGetLearnerMasteryQueryOptions = <TData = Awaited<ReturnType<typeof getLearnerMastery>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearnerMastery>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLearnerMasteryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLearnerMastery>>> = ({ signal }) => getLearnerMastery({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLearnerMastery>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLearnerMasteryQueryResult = NonNullable<Awaited<ReturnType<typeof getLearnerMastery>>>
+export type GetLearnerMasteryQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+
+
+/**
+ * @summary Get learner-owned mastery calculated from submitted attempts
+ */
+
+export function useGetLearnerMastery<TData = Awaited<ReturnType<typeof getLearnerMastery>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearnerMastery>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLearnerMasteryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAssessmentDefinitionsUrl = () => {
+
+
+
+
+  return `/api/admin/assessments`
+}
+
+/**
+ * @summary List tenant-authored assessment definitions for staff selection
+ */
+export const listAssessmentDefinitions = async ( options?: Parameters<typeof customFetch>[1]): Promise<StaffAssessmentDefinition[]> => {
+
+  return customFetch<StaffAssessmentDefinition[]>(getListAssessmentDefinitionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAssessmentDefinitionsQueryKey = () => {
+    return [
+    `/api/admin/assessments`
+    ] as const;
+    }
+
+
+export const getListAssessmentDefinitionsQueryOptions = <TData = Awaited<ReturnType<typeof listAssessmentDefinitions>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAssessmentDefinitions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAssessmentDefinitionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAssessmentDefinitions>>> = ({ signal }) => listAssessmentDefinitions({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAssessmentDefinitions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAssessmentDefinitionsQueryResult = NonNullable<Awaited<ReturnType<typeof listAssessmentDefinitions>>>
+export type ListAssessmentDefinitionsQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+
+
+/**
+ * @summary List tenant-authored assessment definitions for staff selection
+ */
+
+export function useListAssessmentDefinitions<TData = Awaited<ReturnType<typeof listAssessmentDefinitions>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAssessmentDefinitions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAssessmentDefinitionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateAssessmentDefinitionUrl = () => {
+
+
+
+
+  return `/api/admin/assessments`
+}
+
+/**
+ * @summary Create a tenant assessment definition with scored multiple-choice questions
+ */
+export const createAssessmentDefinition = async (assessmentDefinitionInput: AssessmentDefinitionInput, options?: Parameters<typeof customFetch>[1]): Promise<AssessmentDefinition> => {
+
+  return customFetch<AssessmentDefinition>(getCreateAssessmentDefinitionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(assessmentDefinitionInput)
+  }
+);}
+
+
+
+
+
+export const getCreateAssessmentDefinitionMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAssessmentDefinition>>, TError,{data: BodyType<AssessmentDefinitionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAssessmentDefinition>>, TError,{data: BodyType<AssessmentDefinitionInput>}, TContext> => {
+
+const mutationKey = ['createAssessmentDefinition'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAssessmentDefinition>>, {data: BodyType<AssessmentDefinitionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAssessmentDefinition(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAssessmentDefinitionMutationResult = NonNullable<Awaited<ReturnType<typeof createAssessmentDefinition>>>
+    export type CreateAssessmentDefinitionMutationBody = BodyType<AssessmentDefinitionInput>
+    export type CreateAssessmentDefinitionMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Create a tenant assessment definition with scored multiple-choice questions
+ */
+export const useCreateAssessmentDefinition = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAssessmentDefinition>>, TError,{data: BodyType<AssessmentDefinitionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAssessmentDefinition>>,
+        TError,
+        {data: BodyType<AssessmentDefinitionInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAssessmentDefinitionMutationOptions(options));
+    }
+
+export const getListEligibleAssessmentLearnersUrl = () => {
+
+
+
+
+  return `/api/admin/assessment-learners`
+}
+
+/**
+ * @summary List tenant learners eligible for standalone assessment assignment
+ */
+export const listEligibleAssessmentLearners = async ( options?: Parameters<typeof customFetch>[1]): Promise<AssessmentEligibleLearner[]> => {
+
+  return customFetch<AssessmentEligibleLearner[]>(getListEligibleAssessmentLearnersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListEligibleAssessmentLearnersQueryKey = () => {
+    return [
+    `/api/admin/assessment-learners`
+    ] as const;
+    }
+
+
+export const getListEligibleAssessmentLearnersQueryOptions = <TData = Awaited<ReturnType<typeof listEligibleAssessmentLearners>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listEligibleAssessmentLearners>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListEligibleAssessmentLearnersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listEligibleAssessmentLearners>>> = ({ signal }) => listEligibleAssessmentLearners({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listEligibleAssessmentLearners>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListEligibleAssessmentLearnersQueryResult = NonNullable<Awaited<ReturnType<typeof listEligibleAssessmentLearners>>>
+export type ListEligibleAssessmentLearnersQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+
+
+/**
+ * @summary List tenant learners eligible for standalone assessment assignment
+ */
+
+export function useListEligibleAssessmentLearners<TData = Awaited<ReturnType<typeof listEligibleAssessmentLearners>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listEligibleAssessmentLearners>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListEligibleAssessmentLearnersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAssignAssessmentToLearnerUrl = (assessmentId: string,) => {
+
+
+
+
+  return `/api/admin/assessments/${assessmentId}/assignments`
+}
+
+/**
+ * @summary Assign a standalone assessment to a learner in the tenant
+ */
+export const assignAssessmentToLearner = async (assessmentId: string,
+    assessmentLearnerAssignmentInput: AssessmentLearnerAssignmentInput, options?: Parameters<typeof customFetch>[1]): Promise<AssessmentLearnerAssignment> => {
+
+  return customFetch<AssessmentLearnerAssignment>(getAssignAssessmentToLearnerUrl(assessmentId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(assessmentLearnerAssignmentInput)
+  }
+);}
+
+
+
+
+
+export const getAssignAssessmentToLearnerMutationOptions = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignAssessmentToLearner>>, TError,{assessmentId: string;data: BodyType<AssessmentLearnerAssignmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof assignAssessmentToLearner>>, TError,{assessmentId: string;data: BodyType<AssessmentLearnerAssignmentInput>}, TContext> => {
+
+const mutationKey = ['assignAssessmentToLearner'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof assignAssessmentToLearner>>, {assessmentId: string;data: BodyType<AssessmentLearnerAssignmentInput>}> = (props) => {
+          const {assessmentId,data} = props ?? {};
+
+          return  assignAssessmentToLearner(assessmentId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AssignAssessmentToLearnerMutationResult = NonNullable<Awaited<ReturnType<typeof assignAssessmentToLearner>>>
+    export type AssignAssessmentToLearnerMutationBody = BodyType<AssessmentLearnerAssignmentInput>
+    export type AssignAssessmentToLearnerMutationError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+
+    /**
+ * @summary Assign a standalone assessment to a learner in the tenant
+ */
+export const useAssignAssessmentToLearner = <TError = ErrorType<BadRequestResponse | UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assignAssessmentToLearner>>, TError,{assessmentId: string;data: BodyType<AssessmentLearnerAssignmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof assignAssessmentToLearner>>,
+        TError,
+        {assessmentId: string;data: BodyType<AssessmentLearnerAssignmentInput>},
+        TContext
+      > => {
+      return useMutation(getAssignAssessmentToLearnerMutationOptions(options));
     }
 
 export const getListCoursesUrl = () => {

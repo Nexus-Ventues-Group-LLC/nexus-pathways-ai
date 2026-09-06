@@ -459,6 +459,7 @@ export const GetLearnerCourseResponse = zod.object({
 })),
   "assessments": zod.array(zod.object({
   "id": zod.string(),
+  "learnerAssessmentId": zod.string().nullable(),
   "title": zod.string(),
   "instructions": zod.string(),
   "position": zod.number(),
@@ -523,6 +524,242 @@ export const RecordLearnerActivityResponse = zod.object({
   "lastActiveAt": zod.coerce.date(),
   "sessionTimeoutMinutes": zod.number(),
   "inactivityTimeoutMinutes": zod.number()
+})
+
+
+/**
+ * @summary List assessments assigned to the authenticated learner
+ */
+export const ListLearnerAssessmentsResponseItem = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "instructions": zod.string(),
+  "kind": zod.enum(['placement', 'diagnostic', 'lesson', 'unit', 'practice']),
+  "questionCount": zod.number()
+})
+export const ListLearnerAssessmentsResponse = zod.array(ListLearnerAssessmentsResponseItem)
+
+
+/**
+ * @summary Get an eligible assessment without answer keys
+ */
+export const GetLearnerAssessmentParams = zod.object({
+  "assessmentId": zod.coerce.string()
+})
+
+export const GetLearnerAssessmentResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "instructions": zod.string(),
+  "kind": zod.enum(['placement', 'diagnostic', 'lesson', 'unit', 'practice']),
+  "questionCount": zod.number()
+}).and(zod.object({
+  "questions": zod.array(zod.object({
+  "id": zod.string(),
+  "prompt": zod.string(),
+  "choices": zod.array(zod.string()),
+  "position": zod.number(),
+  "skillId": zod.string().nullable()
+}))
+}))
+
+
+/**
+ * @summary List the authenticated learner's assessment attempts
+ */
+export const ListLearnerAssessmentAttemptsParams = zod.object({
+  "assessmentId": zod.coerce.string()
+})
+
+export const ListLearnerAssessmentAttemptsResponseItem = zod.object({
+  "id": zod.string(),
+  "assessmentId": zod.string(),
+  "status": zod.enum(['in_progress', 'submitted']),
+  "startedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable(),
+  "score": zod.number().nullable(),
+  "totalQuestions": zod.number(),
+  "correctAnswers": zod.number().nullable(),
+  "questions": zod.array(zod.object({
+  "id": zod.string(),
+  "prompt": zod.string(),
+  "choices": zod.array(zod.string()),
+  "position": zod.number(),
+  "skillId": zod.string().nullable()
+}))
+})
+export const ListLearnerAssessmentAttemptsResponse = zod.array(ListLearnerAssessmentAttemptsResponseItem)
+
+
+/**
+ * @summary Start or resume the learner's open assessment attempt
+ */
+export const StartLearnerAssessmentAttemptParams = zod.object({
+  "assessmentId": zod.coerce.string()
+})
+
+export const StartLearnerAssessmentAttemptResponse = zod.object({
+  "id": zod.string(),
+  "assessmentId": zod.string(),
+  "status": zod.enum(['in_progress', 'submitted']),
+  "startedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable(),
+  "score": zod.number().nullable(),
+  "totalQuestions": zod.number(),
+  "correctAnswers": zod.number().nullable(),
+  "questions": zod.array(zod.object({
+  "id": zod.string(),
+  "prompt": zod.string(),
+  "choices": zod.array(zod.string()),
+  "position": zod.number(),
+  "skillId": zod.string().nullable()
+}))
+})
+
+
+/**
+ * @summary Submit and deterministically score an attempt; submitted attempts are immutable
+ */
+export const SubmitLearnerAssessmentResponsesParams = zod.object({
+  "assessmentId": zod.coerce.string(),
+  "attemptId": zod.coerce.string()
+})
+
+export const submitLearnerAssessmentResponsesBodyResponsesItemAnswerMax = 10000;
+
+
+
+export const SubmitLearnerAssessmentResponsesBody = zod.object({
+  "responses": zod.array(zod.object({
+  "questionId": zod.string(),
+  "answer": zod.string().max(submitLearnerAssessmentResponsesBodyResponsesItemAnswerMax)
+}))
+})
+
+export const SubmitLearnerAssessmentResponsesResponse = zod.object({
+  "id": zod.string(),
+  "assessmentId": zod.string(),
+  "status": zod.enum(['in_progress', 'submitted']),
+  "startedAt": zod.coerce.date(),
+  "submittedAt": zod.coerce.date().nullable(),
+  "score": zod.number().nullable(),
+  "totalQuestions": zod.number(),
+  "correctAnswers": zod.number().nullable(),
+  "questions": zod.array(zod.object({
+  "id": zod.string(),
+  "prompt": zod.string(),
+  "choices": zod.array(zod.string()),
+  "position": zod.number(),
+  "skillId": zod.string().nullable()
+}))
+})
+
+
+/**
+ * @summary Get learner-owned mastery calculated from submitted attempts
+ */
+export const GetLearnerMasteryResponseItem = zod.object({
+  "skillId": zod.string().nullable(),
+  "assessmentKind": zod.enum(['placement', 'diagnostic', 'lesson', 'unit', 'practice']),
+  "score": zod.number(),
+  "updatedAt": zod.coerce.date()
+})
+export const GetLearnerMasteryResponse = zod.array(GetLearnerMasteryResponseItem)
+
+
+/**
+ * @summary List tenant-authored assessment definitions for staff selection
+ */
+export const listAssessmentDefinitionsResponseTwoAssignmentCountMin = 0;
+
+
+
+export const ListAssessmentDefinitionsResponseItem = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "instructions": zod.string(),
+  "kind": zod.enum(['placement', 'diagnostic', 'lesson', 'unit', 'practice']),
+  "questionCount": zod.number()
+}).and(zod.object({
+  "curriculumAssessmentId": zod.string().nullable(),
+  "unitId": zod.string().nullable()
+})).and(zod.object({
+  "assignmentCount": zod.number().min(listAssessmentDefinitionsResponseTwoAssignmentCountMin)
+}))
+export const ListAssessmentDefinitionsResponse = zod.array(ListAssessmentDefinitionsResponseItem)
+
+
+/**
+ * @summary Create a tenant assessment definition with scored multiple-choice questions
+ */
+
+
+
+export const createAssessmentDefinitionBodyQuestionsItemChoicesMin = 2;
+
+
+
+
+
+
+export const CreateAssessmentDefinitionBody = zod.object({
+  "kind": zod.enum(['placement', 'diagnostic', 'lesson', 'unit', 'practice']),
+  "title": zod.string().min(1),
+  "instructions": zod.string().optional(),
+  "curriculumAssessmentId": zod.string().optional(),
+  "unitId": zod.string().optional(),
+  "questions": zod.array(zod.object({
+  "prompt": zod.string().min(1),
+  "choices": zod.array(zod.string().min(1)).min(createAssessmentDefinitionBodyQuestionsItemChoicesMin),
+  "correctAnswer": zod.string().min(1),
+  "skillId": zod.string().optional(),
+  "skillLabel": zod.string().min(1).optional()
+})).min(1)
+})
+
+export const CreateAssessmentDefinitionResponse = zod.object({
+  "id": zod.string(),
+  "title": zod.string(),
+  "instructions": zod.string(),
+  "kind": zod.enum(['placement', 'diagnostic', 'lesson', 'unit', 'practice']),
+  "questionCount": zod.number()
+}).and(zod.object({
+  "curriculumAssessmentId": zod.string().nullable(),
+  "unitId": zod.string().nullable()
+}))
+
+
+/**
+ * @summary List tenant learners eligible for standalone assessment assignment
+ */
+export const ListEligibleAssessmentLearnersResponseItem = zod.object({
+  "id": zod.string(),
+  "displayName": zod.string(),
+  "cohort": zod.string().nullable(),
+  "program": zod.string().nullable(),
+  "facility": zod.string().nullable()
+})
+export const ListEligibleAssessmentLearnersResponse = zod.array(ListEligibleAssessmentLearnersResponseItem)
+
+
+/**
+ * @summary Assign a standalone assessment to a learner in the tenant
+ */
+export const AssignAssessmentToLearnerParams = zod.object({
+  "assessmentId": zod.coerce.string()
+})
+
+export const AssignAssessmentToLearnerBody = zod.object({
+  "learnerUserId": zod.string(),
+  "assigned": zod.boolean()
+})
+
+export const AssignAssessmentToLearnerResponse = zod.object({
+  "id": zod.string(),
+  "assessmentId": zod.string(),
+  "learnerUserId": zod.string(),
+  "assignedAt": zod.coerce.date(),
+  "unassignedAt": zod.coerce.date().nullable()
 })
 
 
@@ -708,6 +945,7 @@ export const GetCourseStructureResponse = zod.object({
 })),
   "assessments": zod.array(zod.object({
   "id": zod.string(),
+  "learnerAssessmentId": zod.string().nullable(),
   "title": zod.string(),
   "instructions": zod.string(),
   "position": zod.number(),
@@ -818,6 +1056,7 @@ export const ReplaceCourseStructureResponse = zod.object({
 })),
   "assessments": zod.array(zod.object({
   "id": zod.string(),
+  "learnerAssessmentId": zod.string().nullable(),
   "title": zod.string(),
   "instructions": zod.string(),
   "position": zod.number(),

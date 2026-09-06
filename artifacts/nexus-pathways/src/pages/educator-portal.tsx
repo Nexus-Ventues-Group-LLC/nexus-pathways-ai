@@ -1,7 +1,8 @@
 import { useGetDashboard } from '@workspace/api-client-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Users, FileText, CheckCircle, BarChart3, PlusCircle } from 'lucide-react';
+import { Loader2, Users, FileText, CheckCircle, BarChart3, PlusCircle, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'wouter';
 
 export default function EducatorPortal() {
   const { data: dashboard, isLoading, error } = useGetDashboard();
@@ -41,10 +42,15 @@ export default function EducatorPortal() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">View Reports</Button>
+          <Button variant="outline" asChild>
+            <Link href="/educator/assessments">
+              <Target className="mr-2 h-4 w-4" />
+              Assessments
+            </Link>
+          </Button>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
-            New Assessment
+            New Program
           </Button>
         </div>
       </div>

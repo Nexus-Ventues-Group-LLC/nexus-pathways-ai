@@ -298,6 +298,164 @@ export interface LearnerActivity {
   inactivityTimeoutMinutes: number;
 }
 
+export type LearnerAssessmentKind = typeof LearnerAssessmentKind[keyof typeof LearnerAssessmentKind];
+
+
+export const LearnerAssessmentKind = {
+  placement: 'placement',
+  diagnostic: 'diagnostic',
+  lesson: 'lesson',
+  unit: 'unit',
+  practice: 'practice',
+} as const;
+
+export interface LearnerAssessment {
+  id: string;
+  title: string;
+  instructions: string;
+  kind: LearnerAssessmentKind;
+  questionCount: number;
+}
+
+export interface LearnerAssessmentQuestion {
+  id: string;
+  prompt: string;
+  choices: string[];
+  position: number;
+  /** @nullable */
+  skillId: string | null;
+}
+
+export interface AssessmentQuestionInput {
+  /** @minLength 1 */
+  prompt: string;
+  /**
+     * @minItems 2
+     * @items.minLength 1
+     */
+  choices: string[];
+  /** @minLength 1 */
+  correctAnswer: string;
+  skillId?: string;
+  /** @minLength 1 */
+  skillLabel?: string;
+}
+
+export type AssessmentDefinitionInputKind = typeof AssessmentDefinitionInputKind[keyof typeof AssessmentDefinitionInputKind];
+
+
+export const AssessmentDefinitionInputKind = {
+  placement: 'placement',
+  diagnostic: 'diagnostic',
+  lesson: 'lesson',
+  unit: 'unit',
+  practice: 'practice',
+} as const;
+
+export interface AssessmentDefinitionInput {
+  kind: AssessmentDefinitionInputKind;
+  /** @minLength 1 */
+  title: string;
+  instructions?: string;
+  curriculumAssessmentId?: string;
+  unitId?: string;
+  /** @minItems 1 */
+  questions: AssessmentQuestionInput[];
+}
+
+export type AssessmentDefinition = LearnerAssessment & ({
+  /** @nullable */
+  curriculumAssessmentId: string | null;
+  /** @nullable */
+  unitId: string | null;
+});
+
+export type StaffAssessmentDefinition = AssessmentDefinition & {
+  /** @minimum 0 */
+  assignmentCount: number;
+};
+
+export interface AssessmentEligibleLearner {
+  id: string;
+  displayName: string;
+  /** @nullable */
+  cohort: string | null;
+  /** @nullable */
+  program: string | null;
+  /** @nullable */
+  facility: string | null;
+}
+
+export interface AssessmentLearnerAssignmentInput {
+  learnerUserId: string;
+  assigned: boolean;
+}
+
+export interface AssessmentLearnerAssignment {
+  id: string;
+  assessmentId: string;
+  learnerUserId: string;
+  assignedAt: string;
+  /** @nullable */
+  unassignedAt: string | null;
+}
+
+export type LearnerAssessmentDetail = LearnerAssessment & {
+  questions: LearnerAssessmentQuestion[];
+};
+
+export interface AssessmentResponseInput {
+  questionId: string;
+  /** @maxLength 10000 */
+  answer: string;
+}
+
+export interface AssessmentResponseSubmission {
+  responses: AssessmentResponseInput[];
+}
+
+export type LearnerAssessmentAttemptStatus = typeof LearnerAssessmentAttemptStatus[keyof typeof LearnerAssessmentAttemptStatus];
+
+
+export const LearnerAssessmentAttemptStatus = {
+  in_progress: 'in_progress',
+  submitted: 'submitted',
+} as const;
+
+export interface LearnerAssessmentAttempt {
+  id: string;
+  assessmentId: string;
+  status: LearnerAssessmentAttemptStatus;
+  startedAt: string;
+  /** @nullable */
+  submittedAt: string | null;
+  /** @nullable */
+  score: number | null;
+  totalQuestions: number;
+  /** @nullable */
+  correctAnswers: number | null;
+  questions: LearnerAssessmentQuestion[];
+}
+
+export type LearnerMasteryAssessmentKind = typeof LearnerMasteryAssessmentKind[keyof typeof LearnerMasteryAssessmentKind];
+
+
+export const LearnerMasteryAssessmentKind = {
+  placement: 'placement',
+  diagnostic: 'diagnostic',
+  lesson: 'lesson',
+  unit: 'unit',
+  practice: 'practice',
+} as const;
+
+export interface LearnerMastery {
+  /** @nullable */
+  skillId: string | null;
+  assessmentKind: LearnerMasteryAssessmentKind;
+  score: number;
+  updatedAt: string;
+}
+
 export interface LearnerHome {
   coursework: LearnerCoursework[];
   goals: LearnerGoals;
@@ -417,6 +575,8 @@ export interface Skill {
 
 export interface Assessment {
   id: string;
+  /** @nullable */
+  learnerAssessmentId: string | null;
   title: string;
   instructions: string;
   position: number;

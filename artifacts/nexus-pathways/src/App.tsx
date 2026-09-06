@@ -14,9 +14,12 @@ import LearnerResources from '@/pages/learner/resources';
 import LearnerAccessibility from '@/pages/learner/accessibility';
 import LearnerResourceDetail from '@/pages/learner/resource-detail';
 import LearnerCourseReader from '@/pages/learner/courses/reader';
+import LearnerAssessmentDetail from '@/pages/learner/assessments/detail';
 import EducatorPortal from '@/pages/educator-portal';
 import EducatorProgramsList from '@/pages/educator/programs/list';
 import EducatorProgramDetail from '@/pages/educator/programs/detail';
+import EducatorAssessmentsList from '@/pages/educator/assessments/list';
+import EducatorAssessmentsAuthor from '@/pages/educator/assessments/author';
 import AdminPortal from '@/pages/administrator/overview';
 import AdminFacilities from '@/pages/administrator/facilities';
 import AdminPrograms from '@/pages/administrator/programs';
@@ -58,6 +61,7 @@ function Router() {
                   <Route path="/resources" component={LearnerResources} />
                   <Route path="/resources/:slug" component={LearnerResourceDetail} />
                   <Route path="/courses/:id" component={LearnerCourseReader} />
+                  <Route path="/assessments/:assessmentId" component={LearnerAssessmentDetail} />
                   <Route path="/accessibility" component={LearnerAccessibility} />
                   <Route component={NotFound} />
                 </Switch>
@@ -80,6 +84,16 @@ function Router() {
                 <Route path="/programs/:id">
                   <ProtectedRoute requiredPermissions={['curriculum.manage']}>
                     <EducatorProgramDetail />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/assessments">
+                  <ProtectedRoute requiredPermissions={['curriculum.manage']}>
+                    <EducatorAssessmentsList />
+                  </ProtectedRoute>
+                </Route>
+                <Route path="/assessments/new">
+                  <ProtectedRoute requiredPermissions={['curriculum.manage']}>
+                    <EducatorAssessmentsAuthor />
                   </ProtectedRoute>
                 </Route>
                 <Route component={NotFound} />
