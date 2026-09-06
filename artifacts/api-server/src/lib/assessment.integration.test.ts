@@ -10,13 +10,15 @@ import { createAssessmentDefinition } from "./assessment-admin";
 import { assessmentDetail, startAssessmentAttempt, submitAssessment } from "./learner";
 import { replaceStructure } from "./curriculum";
 import type { PortalContext } from "./identity";
+import { createFixtureNamespace } from "../test/fixture-namespace";
 
+const fixtures = createFixtureNamespace("assessment");
 const ids = {
-  org: "95000000-0000-4000-8000-000000000001", otherOrg: "95000000-0000-4000-8000-000000000002",
-  agency: "95000000-0000-4000-8000-000000000003", region: "95000000-0000-4000-8000-000000000004",
-  facility: "95000000-0000-4000-8000-000000000005", program: "95000000-0000-4000-8000-000000000006",
-  cohort: "95000000-0000-4000-8000-000000000007", learner: "95000000-0000-4000-8000-000000000008",
-  staff: "95000000-0000-4000-8000-000000000009", course: "95000000-0000-4000-8000-000000000010",
+  org: fixtures.id(), otherOrg: fixtures.id(),
+  agency: fixtures.id(), region: fixtures.id(),
+  facility: fixtures.id(), program: fixtures.id(),
+  cohort: fixtures.id(), learner: fixtures.id(),
+  staff: fixtures.id(), course: fixtures.id(),
 };
 const context = (userId: string, organizationId = ids.org, role = "learner"): PortalContext => ({
   userId, displayName: role === "learner" ? "Assessment Learner" : "Assessment Staff", email: null, role,
@@ -40,8 +42,8 @@ beforeAll(async () => {
   await db.insert(programsTable).values({ id: ids.program, facilityId: ids.facility, name: "Program" });
   await db.insert(cohortsTable).values({ id: ids.cohort, programId: ids.program, name: "Cohort" });
   await db.insert(usersTable).values([
-    { id: ids.learner, clerkUserId: "assessment_test_learner", displayName: "Assessment Learner" },
-    { id: ids.staff, clerkUserId: "assessment_test_staff", displayName: "Assessment Staff" },
+    { id: ids.learner, clerkUserId: fixtures.key("learner"), displayName: "Assessment Learner" },
+    { id: ids.staff, clerkUserId: fixtures.key("staff"), displayName: "Assessment Staff" },
   ]);
   await db.insert(learnerProfilesTable).values({ userId: ids.learner, cohortId: ids.cohort });
   const standalone = await createAssessmentDefinition(staffContext, {

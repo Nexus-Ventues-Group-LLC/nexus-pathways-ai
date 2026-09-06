@@ -15,6 +15,7 @@ import {
   userRoleAssignmentsTable,
   usersTable,
 } from "@workspace/db";
+import { createFixtureNamespace } from "../test/fixture-namespace";
 
 vi.mock("@clerk/express", () => ({
   clerkMiddleware: () => (_req: unknown, _res: unknown, next: () => void) => next(),
@@ -34,36 +35,37 @@ vi.mock("@clerk/express", () => ({
   },
 }));
 
+const fixtures = createFixtureNamespace("administration-http");
 const ids = {
-  organization: "93000000-0000-4000-8000-000000000001",
-  foreignOrganization: "93000000-0000-4000-8000-000000000002",
-  agencyA: "93000000-0000-4000-8000-000000000011",
-  agencyB: "93000000-0000-4000-8000-000000000012",
-  foreignAgency: "93000000-0000-4000-8000-000000000013",
-  regionA: "93000000-0000-4000-8000-000000000021",
-  regionB: "93000000-0000-4000-8000-000000000022",
-  foreignRegion: "93000000-0000-4000-8000-000000000023",
-  facilityA: "93000000-0000-4000-8000-000000000031",
-  facilityB: "93000000-0000-4000-8000-000000000032",
-  siblingAgencyFacility: "93000000-0000-4000-8000-000000000033",
-  foreignFacility: "93000000-0000-4000-8000-000000000034",
-  programA: "93000000-0000-4000-8000-000000000041",
-  programB: "93000000-0000-4000-8000-000000000042",
-  roleAdmin: "93000000-0000-4000-8000-000000000051",
-  roleLimited: "93000000-0000-4000-8000-000000000052",
-  organizationUser: "93000000-0000-4000-8000-000000000071",
-  agencyUser: "93000000-0000-4000-8000-000000000072",
-  regionUser: "93000000-0000-4000-8000-000000000073",
-  facilityUser: "93000000-0000-4000-8000-000000000074",
-  limitedUser: "93000000-0000-4000-8000-000000000075",
+  organization: fixtures.id(),
+  foreignOrganization: fixtures.id(),
+  agencyA: fixtures.id(),
+  agencyB: fixtures.id(),
+  foreignAgency: fixtures.id(),
+  regionA: fixtures.id(),
+  regionB: fixtures.id(),
+  foreignRegion: fixtures.id(),
+  facilityA: fixtures.id(),
+  facilityB: fixtures.id(),
+  siblingAgencyFacility: fixtures.id(),
+  foreignFacility: fixtures.id(),
+  programA: fixtures.id(),
+  programB: fixtures.id(),
+  roleAdmin: fixtures.id(),
+  roleLimited: fixtures.id(),
+  organizationUser: fixtures.id(),
+  agencyUser: fixtures.id(),
+  regionUser: fixtures.id(),
+  facilityUser: fixtures.id(),
+  limitedUser: fixtures.id(),
 };
 
 const clerkIds = {
-  organization: "http_org_admin",
-  agency: "http_agency_admin",
-  region: "http_region_admin",
-  facility: "http_facility_admin",
-  limited: "http_limited_admin",
+  organization: fixtures.key("org-admin"),
+  agency: fixtures.key("agency-admin"),
+  region: fixtures.key("region-admin"),
+  facility: fixtures.key("facility-admin"),
+  limited: fixtures.key("limited-admin"),
 };
 
 let server: Server;
@@ -112,8 +114,8 @@ beforeAll(async () => {
     { id: ids.programB, facilityId: ids.facilityB, name: "Program B" },
   ]).onConflictDoNothing();
   await db.insert(rolesTable).values([
-    { id: ids.roleAdmin, key: "http-integration-admin", name: "HTTP Integration Admin" },
-    { id: ids.roleLimited, key: "http-integration-limited", name: "HTTP Integration Limited" },
+    { id: ids.roleAdmin, key: fixtures.key("admin-role"), name: "HTTP Integration Admin" },
+    { id: ids.roleLimited, key: fixtures.key("limited-role"), name: "HTTP Integration Limited" },
   ]).onConflictDoNothing();
   const permissionRows = await db.select({ id: permissionsTable.id, key: permissionsTable.key })
     .from(permissionsTable)

@@ -18,20 +18,22 @@ import {
 } from "./administration";
 import { visibleAuditEvents } from "./dashboard";
 import type { PortalContext } from "./identity";
+import { createFixtureNamespace } from "../test/fixture-namespace";
 
+const fixtures = createFixtureNamespace("administration");
 const ids = {
-  organization: "90000000-0000-4000-8000-000000000001",
-  agency: "90000000-0000-4000-8000-000000000002",
-  region: "90000000-0000-4000-8000-000000000003",
-  facilityA: "90000000-0000-4000-8000-000000000004",
-  facilityB: "90000000-0000-4000-8000-000000000005",
-  programA: "90000000-0000-4000-8000-000000000006",
-  programB: "90000000-0000-4000-8000-000000000007",
-  foreignOrganization: "90000000-0000-4000-8000-000000000011",
-  foreignAgency: "90000000-0000-4000-8000-000000000012",
-  foreignRegion: "90000000-0000-4000-8000-000000000013",
-  foreignFacility: "90000000-0000-4000-8000-000000000014",
-  user: "90000000-0000-4000-8000-000000000020",
+  organization: fixtures.id(),
+  agency: fixtures.id(),
+  region: fixtures.id(),
+  facilityA: fixtures.id(),
+  facilityB: fixtures.id(),
+  programA: fixtures.id(),
+  programB: fixtures.id(),
+  foreignOrganization: fixtures.id(),
+  foreignAgency: fixtures.id(),
+  foreignRegion: fixtures.id(),
+  foreignFacility: fixtures.id(),
+  user: fixtures.id(),
 };
 
 const ref = (id: string, name: string) => ({ id, name });
@@ -99,7 +101,7 @@ beforeAll(async () => {
   ]).onConflictDoNothing();
   await db.insert(usersTable).values({
     id: ids.user,
-    clerkUserId: "user_phase2_integration",
+    clerkUserId: fixtures.key("user"),
     displayName: baseContext.displayName,
     email: baseContext.email,
   }).onConflictDoNothing();

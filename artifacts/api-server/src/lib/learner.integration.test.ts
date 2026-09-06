@@ -8,16 +8,18 @@ import {
 import { completeCoursework, learnerHome, updateGoals } from "./learner";
 import type { PortalContext } from "./identity";
 import { requireLearner } from "../middlewares/auth";
+import { createFixtureNamespace } from "../test/fixture-namespace";
 
+const fixtures = createFixtureNamespace("learner");
 const ids = {
-  org: "91000000-0000-4000-8000-000000000001", agency: "91000000-0000-4000-8000-000000000002",
-  orgB: "91000000-0000-4000-8000-000000000007",
-  region: "91000000-0000-4000-8000-000000000003", facility: "91000000-0000-4000-8000-000000000004",
-  program: "91000000-0000-4000-8000-000000000005", cohort: "91000000-0000-4000-8000-000000000006",
-  learnerA: "91000000-0000-4000-8000-000000000010", learnerB: "91000000-0000-4000-8000-000000000011",
-  courseworkA: "91000000-0000-4000-8000-000000000020", courseworkB: "91000000-0000-4000-8000-000000000021",
-  expiredSession: "91000000-0000-4000-8000-000000000030",
-  freshSession: "91000000-0000-4000-8000-000000000031",
+  org: fixtures.id(), agency: fixtures.id(),
+  orgB: fixtures.id(),
+  region: fixtures.id(), facility: fixtures.id(),
+  program: fixtures.id(), cohort: fixtures.id(),
+  learnerA: fixtures.id(), learnerB: fixtures.id(),
+  courseworkA: fixtures.id(), courseworkB: fixtures.id(),
+  expiredSession: fixtures.id(),
+  freshSession: fixtures.id(),
 };
 const context = (userId: string, organizationId = ids.org): PortalContext => ({
   userId, displayName: userId === ids.learnerA ? "Learner A" : "Learner B", email: null, role: "learner", permissions: [],
@@ -38,17 +40,17 @@ beforeAll(async () => {
   await db.insert(facilitiesTable).values({ id: ids.facility, regionId: ids.region, name: "Test Facility" });
   await db.insert(programsTable).values({ id: ids.program, facilityId: ids.facility, name: "Test Program" });
   await db.insert(cohortsTable).values({ id: ids.cohort, programId: ids.program, name: "Test Cohort" });
-  await db.insert(usersTable).values([{ id: ids.learnerA, clerkUserId: "test_learner_a", displayName: "Learner A" }, { id: ids.learnerB, clerkUserId: "test_learner_b", displayName: "Learner B" }]);
+  await db.insert(usersTable).values([{ id: ids.learnerA, clerkUserId: fixtures.key("learner-a"), displayName: "Learner A" }, { id: ids.learnerB, clerkUserId: fixtures.key("learner-b"), displayName: "Learner B" }]);
   await db.insert(applicationSessionsTable).values({
     id: ids.expiredSession,
     userId: ids.learnerA,
-    clerkSessionId: "expired_learner_session",
+    clerkSessionId: fixtures.key("expired-session"),
     createdAt: new Date(Date.now() - 10 * 60_000),
   });
   await db.insert(applicationSessionsTable).values({
     id: ids.freshSession,
     userId: ids.learnerA,
-    clerkSessionId: "fresh_learner_session",
+    clerkSessionId: fixtures.key("fresh-session"),
   });
   await db.insert(learnerCourseworkTable).values([
     { id: ids.courseworkA, organizationId: ids.org, cohortId: ids.cohort, title: "A", description: "A", instructionalMinutes: 30 },
