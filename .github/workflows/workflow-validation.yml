@@ -38,5 +38,12 @@ jobs:
             exit 1
           fi
 
+      - name: Preserve the merge queue isolation gate
+        shell: bash
+        run: |
+          workflow=".github/workflows/api-integration-isolation.yml"
+          grep -Fq "  merge_group:" "$workflow"
+          grep -Fq "    name: Database fixture isolation" "$workflow"
+
       - name: Validate all workflow files
         run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
