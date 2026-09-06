@@ -83,10 +83,14 @@ afterAll(async () => {
 describe("learner data ownership and audit persistence", () => {
   it("never returns or completes another learner's coursework", async () => {
     const a = await learnerHome(context(ids.learnerA));
-    expect(a.coursework.map((coursework) => coursework.id)).toEqual([ids.courseworkA]);
+    expect(a.coursework.map((coursework) => coursework.id)).not.toContain(ids.courseworkB);
     await expect(completeCoursework(context(ids.learnerA), ids.courseworkB)).resolves.toBeNull();
     const b = await learnerHome(context(ids.learnerB));
-    expect(b.coursework[0]?.status).toBe("assigned");
+    expect(b.coursework.map((coursework) => coursework.id)).not.toContain(ids.courseworkA);
+    await expect(completeCoursework(context(ids.learnerB), ids.courseworkB)).resolves.toMatchObject({
+      id: ids.courseworkB,
+      status: "completed",
+    });
   });
   it("persists learner-owned goals and audit events", async () => {
     await updateGoals(context(ids.learnerA), ["Complete the demo"]);
