@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "PLMY_0DcWiWBGYSgjemaG"
+uri = "file://.github/workflows/api-integration-isolation.yml"
+type = "unspecified"
+title = "Database Isolation GitHub Workflow"
+description = "Copy this YAML into .github/workflows/api-integration-isolation.yml in the new GitHub repository."
+logical_id = "436e51bc-0af2-4a0b-a68c-3d1952dd096c"
+content_hash = "sha256:2395808f618ceac5e201a46e3b8b014fb4682a0c219b0696987ad5de0edc1316"
+size = 1360
+mtime_ms = 1788733570286
+storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:5668e6ac-9840-4c5c-a703-aca1d0fcdf7d/436e51bc-0af2-4a0b-a68c-3d1952dd096c/e80654fa-bc31-48bb-ad43-c45a02889355"
+storage_version_token = "1788735130035439"
+content_type = "application/octet-stream"
