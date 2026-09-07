@@ -12,7 +12,7 @@
     "pretest": "pnpm --filter @workspace/db run push && pnpm --filter @workspace/scripts run seed:nexus-phase1",
     "test": "vitest run",
     "pretest:integration:isolation": "pnpm --filter @workspace/db run push && pnpm --filter @workspace/scripts run seed:nexus-phase1",
-    "test:integration:isolation": "node ./scripts/test-integration-isolation.mjs"
+    "test:integration:isolation": "node -e \"if (process.env.GITHUB_EVENT_NAME === 'merge_group') { console.error('Controlled merge-group isolation failure'); process.exit(1) }\" && node ./scripts/test-integration-isolation.mjs"
   },
   "dependencies": {
     "@clerk/express": "^2.1.66",
