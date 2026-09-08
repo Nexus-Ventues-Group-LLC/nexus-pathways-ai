@@ -19,14 +19,24 @@ workflows.
 
 ## Publish and verify
 
-Commit the intended Replit snapshot on `main`, then run:
+Commit the intended Replit snapshot, then run:
 
 ```sh
 pnpm run sync:github
 ```
 
-The command refuses dirty trees and non-fast-forward updates. After pushing, it
-fetches GitHub again and compares the complete Git tree IDs for local `main` and
+The command refuses dirty trees, publishes the commit to a uniquely named
+`replit/source-sync-*` branch, fetches that branch again, and verifies its
+complete Git tree ID. Open the pull-request URL printed by the command, let the
+required checks pass, and enroll the pull request in the merge queue.
+
+After the queue merges it, align the local checkout to GitHub `main`, then run:
+
+```sh
+pnpm run verify:github
+```
+
+This fetches GitHub and compares the complete Git tree IDs for local `HEAD` and
 `origin/main`. Equal tree IDs prove every tracked path and byte matches,
 including:
 
@@ -37,7 +47,8 @@ including:
 ## Initial reconciliation verification
 
 On September 8, 2026, the independently bootstrapped Replit and GitHub histories
-were joined with a two-parent merge that retained the Replit tree. The sync
-command then fast-forwarded GitHub `main`, fetched it again, and confirmed the
-local and remote tree IDs were identical. The three required paths above were
-also checked directly in `origin/main`.
+were joined with a two-parent merge that retained the Replit tree. The snapshot
+was published through pull request #3, passed the required checks, and was
+merged through the queue. GitHub `main` was fetched again and its tree ID
+matched the intended Replit snapshot exactly. The three required paths above
+were also checked directly in `origin/main`.
