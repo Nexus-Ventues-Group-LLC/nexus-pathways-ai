@@ -1,15 +1,21 @@
 # GitHub source synchronization
 
-The GitHub repository is synchronized through its `origin` Git remote rather
-than the GitHub content connector. The connector filters some HTML payloads and
-does not have permission to create or update GitHub Actions workflows.
+The GitHub repository is synchronized through its SSH `origin` Git remote
+rather than the GitHub content connector. The connector filters some HTML
+payloads and does not have permission to create or update GitHub Actions
+workflows.
 
 ## Required setup
 
-- `origin` points to `https://github.com/Nexus-Ventues-Group-LLC/nexus-pathways-ai.git`.
-- `GITHUB_SYNC_TOKEN` is stored as a Replit Secret. It must be scoped to this
-  repository with repository contents and Actions workflow write access.
-- Never put the token in a remote URL, tracked file, command output, or chat.
+- `origin` points to `git@github.com:Nexus-Ventues-Group-LLC/nexus-pathways-ai.git`.
+- The corresponding public key is registered as an authentication key on a
+  GitHub account with write access to the repository.
+- The private key is committed only in AES-256 encrypted form at
+  `.github/keys/nexus-pathways-sync-key.enc`.
+- `GITHUB_SYNC_KEY_PASSPHRASE` is stored as a Replit Secret and decrypts the key
+  into a temporary, permission-restricted file for each sync.
+- Never put the plaintext private key or passphrase in a tracked file, command
+  output, or chat.
 
 ## Publish and verify
 
@@ -30,7 +36,7 @@ including:
 
 ## Initial reconciliation verification
 
-On September 7, 2026, the independently bootstrapped Replit and GitHub histories
+On September 8, 2026, the independently bootstrapped Replit and GitHub histories
 were joined with a two-parent merge that retained the Replit tree. The sync
 command then fast-forwarded GitHub `main`, fetched it again, and confirmed the
 local and remote tree IDs were identical. The three required paths above were

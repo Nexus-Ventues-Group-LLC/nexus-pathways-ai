@@ -3,9 +3,15 @@ set -euo pipefail
 
 remote="${GITHUB_REMOTE:-origin}"
 branch="${GITHUB_BRANCH:-main}"
+encrypted_key="${GITHUB_SYNC_KEY_FILE:-.github/keys/nexus-pathways-sync-key.enc}"
 
-if [[ -z "${GITHUB_SYNC_TOKEN:-}" ]]; then
-  echo "GITHUB_SYNC_TOKEN is not available. Add it as a Replit Secret." >&2
+if [[ -z "${GITHUB_SYNC_KEY_PASSPHRASE:-}" ]]; then
+  echo "GITHUB_SYNC_KEY_PASSPHRASE is not available. Add it as a Replit Secret." >&2
+  exit 1
+fi
+
+if [[ ! -f "$encrypted_key" ]]; then
+  echo "Encrypted GitHub synchronization key not found: $encrypted_key" >&2
   exit 1
 fi
 
@@ -14,20 +20,15 @@ if [[ -n "$(git status --porcelain)" ]]; then
   exit 1
 fi
 
-askpass="$(mktemp)"
-trap 'rm -f "$askpass"' EXIT
-cat >"$askpass" <<'EOF'
-#!/bin/sh
-case "$1" in
-  *Username*) printf '%s\n' 'x-access-token' ;;
-  *Password*) printf '%s\n' "$GITHUB_SYNC_TOKEN" ;;
-  *) exit 1 ;;
-esac
-EOF
-chmod 700 "$askpass"
+key_file="$(mktemp)"
+trap 'rm -f "$key_file"' EXIT
+openssl enc -d -aes-256-cbc -pbkdf2 \
+  -in "$encrypted_key" \
+  -out "$key_file" \
+  -pass env:GITHUB_SYNC_KEY_PASSPHRASE
+chmod 600 "$key_file"
 
-export GIT_ASKPASS="$askpass"
-export GIT_TERMINAL_PROMPT=0
+export GIT_SSH_COMMAND="ssh -i $key_file -o IdentitiesOnly=yes"
 
 git fetch "$remote" "$branch"
 
