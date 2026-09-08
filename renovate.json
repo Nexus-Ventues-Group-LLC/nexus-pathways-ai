@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/api-integration-isolation\\.yml$/"
+      ],
+      "matchStrings": [
+        "image:\\s*(?<depName>postgres):(?<currentValue>\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]{64})\\s*# PostgreSQL 16"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["postgres"],
+      "rangeStrategy": "pin",
+      "schedule": ["before 9am on monday"]
+    }
+  ]
+}
