@@ -45,5 +45,16 @@ jobs:
           grep -Fq "  merge_group:" "$workflow"
           grep -Fq "    name: Database fixture isolation" "$workflow"
 
+      - name: Require immutable container image pins
+        shell: bash
+        run: |
+          cd .github/scripts
+          shopt -s nullglob
+          workflows=(../workflows/*.yml ../workflows/*.yaml)
+          go run . "${workflows[@]}"
+
+      - name: Test immutable container image policy
+        run: go -C .github/scripts test ./...
+
       - name: Validate all workflow files
         run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7

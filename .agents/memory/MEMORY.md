@@ -2,3 +2,4 @@
 - [Clerk seeded test identities](clerk-seeded-test-identities.md) — browser testers cannot assume fake seeded Clerk subjects; use a real mapped test user or service-level auth checks.
 - [Database test rendezvous](database-test-rendezvous.md) — concurrent test barriers need an ordered departure handshake or healthy cleanup can look like missing overlap.
 - [GitHub workflow authorization](github-workflow-authorization.md) — the GitHub connector can manage rules and code but cannot introduce Actions workflows without a separate workflow grant.
+- [YAML policy validation](yaml-policy-validation.md) — security checks must inspect semantic YAML and reject duplicate or merge keys; text matching is representation-bypassable.
