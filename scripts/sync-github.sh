@@ -4,6 +4,7 @@ set -euo pipefail
 remote="${GITHUB_REMOTE:-origin}"
 branch="${GITHUB_BRANCH:-main}"
 encrypted_key="${GITHUB_SYNC_KEY_FILE:-.github/keys/nexus-pathways-sync-key.enc}"
+mode="${GITHUB_SYNC_MODE:-publish}"
 
 if [[ -z "${GITHUB_SYNC_KEY_PASSPHRASE:-}" ]]; then
   echo "GITHUB_SYNC_KEY_PASSPHRASE is not available. Add it as a Replit Secret." >&2
@@ -32,19 +33,31 @@ export GIT_SSH_COMMAND="ssh -i $key_file -o IdentitiesOnly=yes"
 
 git fetch "$remote" "$branch"
 
-if ! git merge-base --is-ancestor "$remote/$branch" "$branch"; then
-  echo "Refusing a non-fast-forward push. Reconcile $remote/$branch first." >&2
-  exit 1
-fi
+local_tree="$(git rev-parse "HEAD^{tree}")"
 
-git push "$remote" "$branch:$branch"
-git fetch "$remote" "$branch"
-
-local_sha="$(git rev-parse "$branch^{tree}")"
-remote_sha="$(git rev-parse "$remote/$branch^{tree}")"
-if [[ "$local_sha" != "$remote_sha" ]]; then
-  echo "Verification failed: local and GitHub trees differ." >&2
-  exit 1
-fi
-
-echo "Verified $remote/$branch matches local $branch at tree $local_sha"
+case "$mode" in
+  publish)
+    sync_branch="${GITHUB_SYNC_BRANCH:-replit/source-sync-$(git rev-parse --short=12 HEAD)}"
+    git push "$remote" "HEAD:refs/heads/$sync_branch"
+    git fetch "$remote" "$sync_branch"
+    remote_tree="$(git rev-parse "FETCH_HEAD^{tree}")"
+    if [[ "$local_tree" != "$remote_tree" ]]; then
+      echo "Verification failed: local and published sync-branch trees differ." >&2
+      exit 1
+    fi
+    echo "Verified $remote/$sync_branch matches local HEAD at tree $local_tree"
+    echo "Open a pull request: https://github.com/Nexus-Ventues-Group-LLC/nexus-pathways-ai/compare/$branch...$sync_branch?expand=1"
+    ;;
+  verify)
+    remote_tree="$(git rev-parse "$remote/$branch^{tree}")"
+    if [[ "$local_tree" != "$remote_tree" ]]; then
+      echo "Verification failed: local HEAD and $remote/$branch differ." >&2
+      exit 1
+    fi
+    echo "Verified $remote/$branch matches local HEAD at tree $local_tree"
+    ;;
+  *)
+    echo "Unsupported GITHUB_SYNC_MODE: $mode (expected publish or verify)" >&2
+    exit 1
+    ;;
+esac
